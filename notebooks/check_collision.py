@@ -122,7 +122,7 @@ for ep in demos:
         if j < num_actions - 1:
             # ensure that the actions deterministically lead to the same recorded states
             state_playback = env.sim.get_state().flatten()
-            obj_id, state_data = update_state(state_playback.copy(), states[j + 1])
+            obj_id, state_data = state_playback.copy(), states[j + 1]
             if not np.all(np.equal(state_data, state_playback)):
                 err = np.linalg.norm(state_data - state_playback)
                 if err > 2:

@@ -86,7 +86,7 @@ while i < len(demos):
         if j < num_actions - 1:
             # ensure that the actions deterministically lead to the same recorded states
             state_playback = env.sim.get_state().flatten()
-            obj_id, state_data = update_state(state_playback.copy(), states[j + 1])
+            state_data = states[j + 1]
             err = np.linalg.norm(state_data - state_playback)
             # pbar.set_description(f"Episode {ep} - {successful} - playback diverged by {err:.2f}")
             # if not np.all(np.equal(state_data, state_playback)):
