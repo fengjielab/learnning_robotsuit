@@ -61,7 +61,13 @@ def get_contacts(sim, model):
         # check contact geom in geoms; add to contact set if match is found
         g1, g2 = sim.model.geom_id2name(contact.geom1), sim.model.geom_id2name(contact.geom2)
         if g1 in model.contact_geoms and g2 not in model.contact_geoms:
-            contact_set.add(g2)
+            if g2:
+                contact_set.add(g2)
+            else:
+                contact_set.add(contact.geom2)
         elif g2 in model.contact_geoms and g1 not in model.contact_geoms:
-            contact_set.add(g1)
+            if g1:
+                contact_set.add(g1)
+            else:
+                contact_set.add(contact.geom1)
     return contact_set
