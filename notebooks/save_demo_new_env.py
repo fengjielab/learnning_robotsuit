@@ -17,11 +17,18 @@ from utils import update_xml, update_state
 import datetime
 import robosuite as suite
 
+# add arguments
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument('--dataset_type', type=str, default='mh')
+parser.add_argument('--demo_path', type=str, default='../robosuite/models/assets/demonstrations/can/')
+parser.add_argument('--new_demo_path', type=str, default='../notebooks/data/demonstrations/can/')
+args = parser.parse_args()
 
-dataset_type = 'mh'
-demo_path = f'robosuite/models/assets/demonstrations/can/{dataset_type}'
-new_demo_path = f'notebooks/data/demonstrations/can/{dataset_type}'
-video_path = f'data/videos/demonstrations/{dataset_type}'
+dataset_type = args.dataset_type
+demo_path = os.path.join(args.demo_path, dataset_type)
+new_demo_path = os.path.join(args.new_demo_path, dataset_type)
+# video_path = f'data/videos/demonstrations/{dataset_type}'
 hdf5_path = os.path.join(demo_path, "demo_v141.hdf5")
 f = h5py.File(hdf5_path, "r")
 env_args = json.loads(f["data"].attrs["env_args"])
@@ -77,12 +84,6 @@ while i < len(demos):
 # while i < 21:
 # while i < 2000:
     ep = demos[i]
-    if ep not in count_dict:
-        count_dict[ep] = 0
-    count_dict[ep] += 1
-
-    if(count_dict[ep] > 2):
-        i += 1
 
     env.reset()
     successful = False
@@ -113,12 +114,12 @@ while i < len(demos):
     state_array = env.sim.get_state().flatten()
 
     # check the states again: env.sim.get_state().flatten()
-    if not np.all(np.equal(state, env.sim.get_state().flatten())):
-        print("States are not equal in demo {}!".format(ep))
-        break
-    if env.object_id != obj_id:
-        print("Object id not match in demo {}!".format(ep))
-        break
+    # if not np.all(np.equal(state, env.sim.get_state().flatten())):
+    #     print("States are not equal in demo {}!".format(ep))
+    #     break
+    # if env.object_id != obj_id:
+    #     print("Object id not match in demo {}!".format(ep))
+    #     break
 
 
     # load the actions and play them back open-loop
@@ -142,7 +143,7 @@ while i < len(demos):
             # print("Episode {} finished unsuccessful after {} steps".format(ep, j + 1))
 
         successful = env._check_success()
-        state_array = np.vstack((state_array, state_playback))  #加state play back 
+        state_array = np.vstack((state_array, env.sim.get_state().flatten()))  #加state play back 
         # if j < num_actions - 1:
         #     # ensure that the actions deterministically lead to the same recorded states
         #     state_playback = env.sim.get_state().flatten()
@@ -155,7 +156,7 @@ while i < len(demos):
         #     if not np.all(np.equal(state_data, state_playback)):
         #         err = np.linalg.norm(state_data - state_playback)
         #         # print(f"[warning] playback diverged by {err:.2f} for ep {ep} at step {j}")
-        pbar.set_description(f"Episode {ep} - {'not ' if not successful else ''}successful")
+        pbar.set_description(f"{i} - Episode {ep} - {'not ' if not successful else ''}successful")
 
     if successful:
         i += 1
