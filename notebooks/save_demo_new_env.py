@@ -22,19 +22,20 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('--dataset_type', type=str, default='mh')
 parser.add_argument('--demo_path', type=str, default='../robosuite/models/assets/demonstrations/can/')
-parser.add_argument('--new_demo_path', type=str, default='../notebooks/data/demonstrations/can/')
+parser.add_argument('--new_demo_path', type=str, default='data/demonstrations/can/')
 args = parser.parse_args()
 
 dataset_type = args.dataset_type
 demo_path = os.path.join(args.demo_path, dataset_type)
 new_demo_path = os.path.join(args.new_demo_path, dataset_type)
+os.path.exists(new_demo_path) or os.makedirs(new_demo_path)
 # video_path = f'data/videos/demonstrations/{dataset_type}'
 hdf5_path = os.path.join(demo_path, "demo_v141.hdf5")
 f = h5py.File(hdf5_path, "r")
 env_args = json.loads(f["data"].attrs["env_args"])
 env_name = env_args['env_name']
 env_info = env_args['env_kwargs']
-env_info['camera_names'] = ['frontview', 'birdview', 'agentview', 'robot0_eye_in_hand']
+env_info['camera_names'] = 'frontview'
 env_info['has_renderer'] = False
 env_info['use_camera_obs'] = True
 env_info['has_offscreen_renderer'] = True
@@ -69,12 +70,13 @@ env = suite.make(
 # list of all demonstrations episodes
 demos = list(f["data"].keys())
 demos = sorted(demos)
-print(len(demos))
+len_demos = len(demos)
+# print(len(demos))
 
 # demos = [x for x in demos_all if x not in demos_already]
 # print(len(demos))
 
-print("Playing back random episode... (press ESC to quit)")
+print("Playing back... (press ESC to quit)")
 
 # pre-stop
 count_dict = {}
@@ -88,6 +90,7 @@ while i < len(demos):
     env.reset()
     successful = False
     observations = []
+    camera = env_info['camera_names']
     
     # dst_xml = etree.fromstring(env.sim.model.get_xml())
     # model_xml = f["data/{}".format(ep)].attrs["model_file"]
@@ -132,7 +135,7 @@ while i < len(demos):
     for j, action in pbar:
         pbar.set_description(f"")
         obs, reward, done, info = env.step(action)
-        observations.append({camera + "_image": obs[camera + "_image"][::-1, :, :] for camera in env_info['camera_names']})
+        observations.append(obs[camera + "_image"][::-1, :, :].astype(np.uint8))
         # env.render()
 
         # if env._check_success():
@@ -156,15 +159,21 @@ while i < len(demos):
         #     if not np.all(np.equal(state_data, state_playback)):
         #         err = np.linalg.norm(state_data - state_playback)
         #         # print(f"[warning] playback diverged by {err:.2f} for ep {ep} at step {j}")
-        pbar.set_description(f"{i} - Episode {ep} - {'not ' if not successful else ''}successful")
+        pbar.set_description(f"{i}/{len_demos} - Episode {ep} - {'not ' if not successful else ''}successful")
 
     if successful:
+        observations = np.array(observations)
+        state_array = state_array[:-1]
+        # print(len(state_array), len(actions), len(observations))
+        assert len(state_array) == len(actions)
+        assert len(state_array) == len(observations)
         i += 1
-        os.path.exists(os.path.join(video_path, ep)) or os.makedirs(os.path.join(video_path, ep))
+        # os.path.exists(os.path.join(video_path, ep)) or os.makedirs(os.path.join(video_path, ep))
         ep_data_grp = grp.create_group(f"{dataset_type}_{ep}")
         # write datasets for states and actions
         ep_data_grp.create_dataset("states", data=state_array)
         ep_data_grp.create_dataset("actions", data=np.array(actions))
+        ep_data_grp.create_dataset("frontview_image", data=observations)
 
         # for camera in env_info['camera_names']:
         #     os.path.exists(os.path.join(video_path, ep)) or os.makedirs(os.path.join(video_path, ep))
