@@ -87,6 +87,10 @@ while i < len(demos):
 # while i < 2000:
     ep = demos[i]
 
+    if ep not in count_dict:
+        count_dict[ep] = 0
+    count_dict[ep] += 1
+
     env.reset()
     successful = False
     observations = []
@@ -159,7 +163,7 @@ while i < len(demos):
         #     if not np.all(np.equal(state_data, state_playback)):
         #         err = np.linalg.norm(state_data - state_playback)
         #         # print(f"[warning] playback diverged by {err:.2f} for ep {ep} at step {j}")
-        pbar.set_description(f"{i}/{len_demos} - Episode {ep} - {'not ' if not successful else ''}successful")
+        pbar.set_description(f"{i}/{len_demos} - {count_dict[ep]} - Episode {ep} - {'not ' if not successful else ''}successful")
 
     if successful:
         observations = np.array(observations)
@@ -183,6 +187,9 @@ while i < len(demos):
         #         writer.append_data(frame)
         #     writer.close()
 
+    if count_dict[ep] > 20 and (dataset_type == 'mg' or dataset_type == 'paired'):
+        i += 1
+
 # write dataset attributes (metadata)
 now = datetime.datetime.now()
 grp.attrs["date"] = "{}-{}-{}".format(now.month, now.day, now.year)
@@ -198,3 +205,4 @@ grp.attrs["env_info"] = env_info_dump
 f_write.close()
         
 f.close()
+env.close()
