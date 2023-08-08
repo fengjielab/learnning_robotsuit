@@ -29,6 +29,10 @@ def update_state(dst, src):
     
     return obj_id, dst
 
+def get_can_pos_from_old_state(state):
+    can_pos = state[31:34]
+    return can_pos
+
 def playback_demo(env, f, ep, video_path, save_video=True):
     writer = imageio.get_writer(video_path, fps=20)
     env.reset()

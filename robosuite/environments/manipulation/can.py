@@ -696,17 +696,103 @@ class PickPlaceCans(SingleArmEnv):
 
         return sensors, names
 
-    def _reset_internal(self, obj_id_to_use=random.choice([0, 1, 2, 3, 4, 5])):
+    def _reset_internal(self, deterministic_initial_can_pos=None):
         """
         Resets simulation internal configurations.
         """
         super()._reset_internal()
+
+        if deterministic_initial_can_pos is not None:
+            self.object_id = 0
+            # new placement_initializer
+            self.placement_initializer = SequentialCompositeSampler(name="ObjectSampler")
+
+            # can sample anywhere in bin
+            bin_x_half = self.model.mujoco_arena.table_full_size[0] / 2 - 0.05
+            bin_y_half = self.model.mujoco_arena.table_full_size[1] / 2 - 0.05
+
+            can_pos = deterministic_initial_can_pos - self.bin1_pos
+            # Add can to placement initializer
+            self.placement_initializer.append_sampler(
+                sampler=UniformRandomSampler(
+                    name="FixedObjectSampler",
+                    mujoco_objects=self.objects[0],
+                    x_range=[can_pos[0], can_pos[0]],
+                    y_range=[can_pos[1], can_pos[1]],
+                    rotation=0.0,
+                    rotation_axis="z",
+                    ensure_object_boundary_in_range=True,
+                    ensure_valid_placement=True,
+                    reference_pos=self.bin1_pos,
+                    z_offset=0.0,
+                )
+            )
+
+            # Add other placement initializer
+            # each object should just be sampled in the bounds of the bin (with some tolerance)
+            self.placement_initializer.append_sampler(
+                sampler=UniformRandomSampler(
+                    name="CollisionObjectSampler",
+                    mujoco_objects=self.objects[1:],  # exclude can
+                    x_range=[-bin_x_half, bin_x_half],
+                    y_range=[-bin_y_half, bin_y_half],
+                    rotation=None,
+                    rotation_axis="z",
+                    ensure_object_boundary_in_range=True,
+                    ensure_valid_placement=True,
+                    reference_pos=self.bin1_pos,
+                    z_offset=0.0,
+                )
+            )
+
+            # each visual object should just be at the center of each target bin
+            # Note: no use if no visulization
+            index = 0
+            for vis_obj in self.visual_objects:
+
+                # get center of target bin
+                bin_x_low = self.bin2_pos[0]
+                bin_y_low = self.bin2_pos[1]
+                if index == 0 or index == 2:
+                    bin_x_low -= self.bin_size[0] / 2
+                #if index < 2: REVISION-2
+                if index < 2 or index > 3:
+                    bin_y_low -= self.bin_size[1] / 2
+                bin_x_high = bin_x_low + self.bin_size[0] / 2
+                bin_y_high = bin_y_low + self.bin_size[1] / 2
+                bin_center = np.array(
+                    [
+                        (bin_x_low + bin_x_high) / 2.0,
+                        (bin_y_low + bin_y_high) / 2.0,
+                    ]
+                )
+
+                # placement is relative to object bin, so compute difference and send to placement initializer
+                rel_center = bin_center - self.bin1_pos[:2]
+
+                self.placement_initializer.append_sampler(
+                    sampler=UniformRandomSampler(
+                        name=f"{vis_obj.name}ObjectSampler",
+                        mujoco_objects=vis_obj,
+                        x_range=[rel_center[0], rel_center[0]],
+                        y_range=[rel_center[1], rel_center[1]],
+                        rotation=0.0,
+                        rotation_axis="z",
+                        ensure_object_boundary_in_range=False,
+                        ensure_valid_placement=False,
+                        reference_pos=self.bin1_pos,
+                        z_offset=self.bin2_pos[2] - self.bin1_pos[2],
+                    )
+                )
+                index += 1
+
 
         # Reset all object positions using initializer sampler if we're not directly loading from an xml
         if not self.deterministic_reset:
 
             # Sample from the placement initializer for all objects
             object_placements = self.placement_initializer.sample()
+            # print(object_placements.values())
             # print(object_placements.keys())
             # dict_keys(['Milk', 'Bread', 'Cereal', 'Can', 'Lemon', 'Bottle'])
 
@@ -754,12 +840,12 @@ class PickPlaceCans(SingleArmEnv):
         # Move objects out of the scene depending on the mode
         obj_names = {obj.name for obj in self.objects}
         if self.single_object_mode == 1:
-            # self.obj_to_use = random.choice(list(obj_names))
-            # for obj_type, i in self.object_to_id.items():
-            #     if obj_type.lower() in self.obj_to_use.lower():
-            #         self.object_id = i
-            #         break
-            self.object_id = obj_id_to_use
+            if deterministic_initial_can_pos is None:
+                self.obj_to_use = random.choice(list(obj_names))
+                for obj_type, i in self.object_to_id.items():
+                    if obj_type.lower() in self.obj_to_use.lower():
+                        self.object_id = i
+                        break
             self.obj_to_use = self.objects[self.object_id].name
         elif self.single_object_mode == 2:
             self.obj_to_use = self.objects[self.object_id].name
