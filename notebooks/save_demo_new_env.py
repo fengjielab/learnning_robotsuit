@@ -101,6 +101,7 @@ while i < len(demos):
     # src_xml = etree.fromstring(model_xml)
     # update_xml(dst_xml, src_xml)
     # xml = env.edit_model_xml(etree.tostring(dst_xml).decode())
+    model_file = env.sim.model.get_xml()
 
     # state = env.sim.get_state().flatten()
     # print("original state:")
@@ -149,7 +150,7 @@ while i < len(demos):
         # elif j == num_actions - 1:
             # print("Episode {} finished unsuccessful after {} steps".format(ep, j + 1))
 
-        successful = env._check_success()
+        successful = env._check_success() and np.where(env.objects_in_bins==1)[0][0] == env.object_id
         state_array = np.vstack((state_array, env.sim.get_state().flatten()))  #加state play back 
         # if j < num_actions - 1:
         #     # ensure that the actions deterministically lead to the same recorded states
@@ -178,6 +179,7 @@ while i < len(demos):
         ep_data_grp.create_dataset("states", data=state_array)
         ep_data_grp.create_dataset("actions", data=np.array(actions))
         ep_data_grp.create_dataset("frontview_image", data=observations)
+        ep_data_grp.attrs["model_file"] = model_file
 
         # for camera in env_info['camera_names']:
         #     os.path.exists(os.path.join(video_path, ep)) or os.makedirs(os.path.join(video_path, ep))
