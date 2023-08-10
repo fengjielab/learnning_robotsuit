@@ -117,5 +117,6 @@ mjkey.txt
 macros_private.py
 
 data
+database
 
 *.hdf5

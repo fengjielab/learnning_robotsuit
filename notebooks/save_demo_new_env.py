@@ -22,7 +22,7 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('--dataset_type', type=str, default='mh')
 parser.add_argument('--demo_path', type=str, default='../robosuite/models/assets/demonstrations/can/')
-parser.add_argument('--new_demo_path', type=str, default='data/demonstrations/can/')
+parser.add_argument('--new_demo_path', type=str, default='database/raw/')
 args = parser.parse_args()
 
 dataset_type = args.dataset_type
@@ -93,7 +93,7 @@ while i < len(demos):
 
     env.reset()
     successful = False
-    observations = []
+    # observations = []
     camera = env_info['camera_names']
     
     # dst_xml = etree.fromstring(env.sim.model.get_xml())
@@ -140,7 +140,7 @@ while i < len(demos):
     for j, action in pbar:
         pbar.set_description(f"")
         obs, reward, done, info = env.step(action)
-        observations.append(obs[camera + "_image"][::-1, :, :].astype(np.uint8))
+        # observations.append(obs[camera + "_image"][::-1, :, :].astype(np.uint8))
         # env.render()
 
         # if env._check_success():
@@ -167,18 +167,18 @@ while i < len(demos):
         pbar.set_description(f"{i}/{len_demos} - {count_dict[ep]} - Episode {ep} - {'not ' if not successful else ''}successful")
 
     if successful:
-        observations = np.array(observations)
+        # observations = np.array(observations)
         state_array = state_array[:-1]
         # print(len(state_array), len(actions), len(observations))
         assert len(state_array) == len(actions)
-        assert len(state_array) == len(observations)
+        # assert len(state_array) == len(observations)
         i += 1
         # os.path.exists(os.path.join(video_path, ep)) or os.makedirs(os.path.join(video_path, ep))
         ep_data_grp = grp.create_group(f"{dataset_type}_{ep}")
         # write datasets for states and actions
         ep_data_grp.create_dataset("states", data=state_array)
         ep_data_grp.create_dataset("actions", data=np.array(actions))
-        ep_data_grp.create_dataset("frontview_image", data=observations)
+        # ep_data_grp.create_dataset("frontview_image", data=observations)
         ep_data_grp.attrs["model_file"] = model_file
 
         # for camera in env_info['camera_names']:
