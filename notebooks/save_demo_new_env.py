@@ -189,7 +189,7 @@ while i < len(demos):
         #         writer.append_data(frame)
         #     writer.close()
 
-    if count_dict[ep] > 20 and (dataset_type == 'mg' or dataset_type == 'paired'):
+    if (count_dict[ep] > 20 and (dataset_type == 'mg' or dataset_type == 'paired')) or count_dict[ep] > 100:
         i += 1
 
 # write dataset attributes (metadata)
