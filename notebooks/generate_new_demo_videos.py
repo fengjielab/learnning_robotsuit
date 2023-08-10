@@ -18,7 +18,7 @@ add arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_type', type=str, default='ph', help='data type to generate')
 # video database
-parser.add_argument('--video_database', type=str, default='database/videos', help='video database')
+parser.add_argument('--video_database', type=str, default='../trajectory-preference-collection-tool/server/database/videos', help='video database')
 args = parser.parse_args()
 data_type = args.data_type
 

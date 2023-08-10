@@ -1,18 +1,9 @@
 import json
 import os
-import random
 
 import h5py
 import numpy as np
 from tqdm import tqdm
-
-import time
-
-import robosuite
-import imageio
-from pprint import pprint   
-from lxml import etree
-from utils import update_xml, update_state
 
 import datetime
 import robosuite as suite
