@@ -21,7 +21,9 @@ parser.add_argument('--data_type', type=str, default='ph', help='data type to ge
 parser.add_argument('--hdf5_dir', type=str, default='../../trajectory-preference-collection-tool/server/database/raw', help='hdf5 directory')
 parser.add_argument('--video_database', type=str, default='../../trajectory-preference-collection-tool/server/database/videos', help='video database')
 args = parser.parse_args()
+
 data_type = args.data_type
+video_database = args.video_database
 
 # %%
 '''
@@ -33,7 +35,6 @@ hdf5_path = os.path.join(args.hdf5_dir, data_type, f'new_env_demo_{data_type}.hd
 f = h5py.File(hdf5_path, 'r')
 print(f'hdf5 file: {hdf5_path}')
 
-video_database = os.path.join('database', 'videos')
 
 # %%
 '''
