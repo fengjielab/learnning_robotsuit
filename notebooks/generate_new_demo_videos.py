@@ -17,8 +17,9 @@ add arguments
 '''
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_type', type=str, default='ph', help='data type to generate')
-# video database
-parser.add_argument('--video_database', type=str, default='../trajectory-preference-collection-tool/server/database/videos', help='video database')
+# hdf5_dir
+parser.add_argument('--hdf5_dir', type=str, default='../../trajectory-preference-collection-tool/server/database/raw', help='hdf5 directory')
+parser.add_argument('--video_database', type=str, default='../../trajectory-preference-collection-tool/server/database/videos', help='video database')
 args = parser.parse_args()
 data_type = args.data_type
 
@@ -28,7 +29,7 @@ load data and initialize variables
 '''
 print(f'generating {data_type} videos...')
 
-hdf5_path = os.path.join('data', 'demonstrations', 'can', data_type, f'new_env_demo_{data_type}.hdf5')
+hdf5_path = os.path.join(args.hdf5_dir, data_type, f'new_env_demo_{data_type}.hdf5')
 f = h5py.File(hdf5_path, 'r')
 print(f'hdf5 file: {hdf5_path}')
 
