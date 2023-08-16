@@ -19,35 +19,35 @@ from scipy.spatial.transform import Rotation
 """
 add arguments
 """
-# parser = argparse.ArgumentParser()
+parser = argparse.ArgumentParser()
 # parser.add_argument("--data_type", type=str, default="ph", help="data type to generate")
-# parser.add_argument(
-#     "--hdf5_dir",
-#     type=str,
-#     default="../../trajectory-preference-collection-tool/server/database/raw",
-#     help="hdf5 directory",
-# )
-# parser.add_argument(
-#     "--feature_dir",
-#     type=str,
-#     default="../../trajectory-preference-collection-tool/server/database/videos",
-#     help="feature directory",
-# )
-# args = parser.parse_args()
+parser.add_argument(
+    "--hdf5_dir",
+    type=str,
+    default="../../trajectory-preference-collection-tool/server/database/raw",
+    help="hdf5 directory",
+)
+parser.add_argument(
+    "--feature_dir",
+    type=str,
+    default="../../trajectory-preference-collection-tool/server/database/videos",
+    help="feature directory",
+)
+args = parser.parse_args()
 
 # data_type = args.data_type
-# hdf5_path = os.path.join(args.hdf5_dir, data_type, f"new_env_demo_{data_type}.hdf5")
-# feature_path = os.path.join(args.feature_dir, "features.hdf5")
+hdf5_path = os.path.join(args.hdf5_dir, "selected_can_demo.hdf5")
+feature_path = os.path.join(args.feature_dir, "features.hdf5")
 
 # %%
 """
 load data and initialize variables
 """
-data_type = "ph"
-hdf5_path = os.path.join("data", "demonstrations", "can", data_type, f"new_env_demo_{data_type}.hdf5")
-feature_path = os.path.join("database", "features.hdf5")
+# data_type = "ph"
+# hdf5_path = os.path.join("data", "demonstrations", "can", data_type, f"new_env_demo_{data_type}.hdf5")
+# feature_path = os.path.join("database", "features.hdf5")
 
-print(f"generating safety features in {data_type} data...")
+print(f"generating features ...")
 
 f = h5py.File(hdf5_path, "r")
 print(f"hdf5 file: {hdf5_path}")
@@ -92,42 +92,49 @@ generate features
 """
 demo_names = list(f["data"].keys())
 
-for ep in demo_names[:1]:
-    states = f[f"data/{ep}/states"][()]
-    env.reset()
-    env.sim.set_state_from_flattened(states[-1])
-    env.sim.forward()
-    env._check_success()
-    assert env.objects_in_bins[env.object_id] == 1
+with tqdm(demo_names) as pbar:
+    for ep in pbar:
+        pbar.set_postfix({"episode": ep})
+        states = f[f"data/{ep}/states"][()]
+        env.reset()
+        env.sim.set_state_from_flattened(states[-1])
+        env.sim.forward()
+        env._check_success()
 
-    geom_id2name = env.sim.model._geom_id2name
+        geom_id2name = env.sim.model._geom_id2name
 
-    num_collisions = 0
-    prev_contacts = set()
-    contact_arrays = []
+        num_collisions = 0
+        prev_contacts = set()
+        contact_arrays = []
 
-    distances = []
+        distances = []
 
-    speeds = []
+        speeds = []
 
-    path_lengths = [0, 0, 0]
-    path23_start_id = 0
-    path2_end_id = len(states) - 1
-    path3_end_id = len(states) - 1
-    eef_poses = []
-    obj_poses = []
+        path_lengths = [0, 0, 0]
+        path23_start_id = 0
+        path2_end_id = len(states) - 1
+        path3_end_id = len(states) - 1
+        eef_poses = []
+        obj_poses = []
 
-    eef_rot_eulers = []
-    max_eef_rot_deg = 0
-    obj_rot_eulers = []
-    max_obj_rot_deg = 0
-    rel_rot_eulers = []
-    obj_to_eef_angles = []
+        ee_force = []
 
-    with tqdm(enumerate(states), total=len(states)) as pbar:
-        for i, state in pbar:
-            pbar.set_description(ep)
+        pre_dis_vec = []
+        trajectory_smoothness = 0
 
+        joint_pos = []     
+        pre_joint_pos = [] 
+        pseudo_cost = 0
+
+        eef_rot_eulers = []
+        max_eef_rot_deg = 0
+        obj_rot_eulers = []
+        max_obj_rot_deg = 0
+        rel_rot_eulers = []
+        obj_to_eef_angles = []
+
+        for i, state in enumerate(states):
             env.sim.set_state_from_flattened(state)
             env.sim.forward()
             obj_to_use = env.objects[env.object_id]
@@ -142,7 +149,6 @@ for ep in demo_names[:1]:
                 np.all([("robot" not in str(c) and "gripper" not in str(c) and c != 7 and c != 21) for c in contacts])
                 and len(contacts) != 0
             ):
-                print(contacts)
                 num_collisions += 1
             # pbar.set_postfix({"#collisions": num_collisions})
 
@@ -160,8 +166,8 @@ for ep in demo_names[:1]:
             dis_to_back_edge = obj_pos[0] - table_back_edge_x
             distances.append([dis_to_table, dis_to_left_edge, dis_to_right_edge, dis_to_front_edge, dis_to_back_edge])
             
-            ## TODO: get contact force
-
+            ## get contact force
+            ee_force.append(env.robots[0].ee_force)
 
             ### Efficiency ###
             ## speed of eef
@@ -170,7 +176,6 @@ for ep in demo_names[:1]:
             speeds.append(np.concatenate([eef_xvelp, eef_xvelr]))
 
             ## path length: eef to object, eef to bin, object to bin
-            ## TODO: accuracy
             eef_pos = env.sim.data.get_body_xpos("gripper0_eef").copy()
             if path23_start_id == 0:
                 path_lengths[0] += np.linalg.norm(eef_pos - eef_poses[-1]) if i != 0 else 0
@@ -183,17 +188,32 @@ for ep in demo_names[:1]:
                     path2_end_id = i
                 if 21 in prev_contacts - contacts:
                     path3_end_id = i
-            eef_poses.append(eef_pos)
-            obj_poses.append(obj_pos)
             # pbar.set_postfix({"path_lengths": path_lengths})
 
-            ## TODO: pseudo energy
+            ## pseudo energy
+            joint_pos = env.robots[0]._joint_positions
+            if i > 0 :
+                joint_move = np.array(joint_pos) - np.array(pre_joint_pos)
+                distance =   sum(abs(value) for value in joint_move)
+                pseudo_cost += distance
+            pre_joint_pos = joint_pos
 
             ### Quality ###
-            ## speed smoothness: "The smoothness value is a cumulative function of the end effector's linear and angular accelerations."
-            # eef_accp = env.sim.data.get_body_xaccp("gripper0_eef") 
-            # eef_accr = env.sim.data.get_body_xaccr("gripper0_eef")
-            ## TODO: speed smoothness
+
+            ## trajectory smoothness
+            dis_vec = None
+            if i > 0:
+                dis_vec = eef_pos - eef_poses[-1]
+            if i > 1:  # 确保有两个向量来计算夹角
+                dot_product = np.dot(dis_vec, pre_dis_vec)
+                norms_product = np.linalg.norm(dis_vec) * np.linalg.norm(pre_dis_vec)
+                cos_theta = np.clip(dot_product / norms_product, -1.0, 1.0)
+                angle = np.arccos(cos_theta)  # 这是以弧度为单位的角度
+                trajectory_smoothness += angle**2
+                
+            pre_dis_vec = dis_vec
+            eef_poses.append(eef_pos)
+            obj_poses.append(obj_pos)
 
             ## orientation
             # Get rotation matrices for end-effector and can
@@ -213,66 +233,66 @@ for ep in demo_names[:1]:
             # end of rollout of this episode
             prev_contacts = contacts
 
-    ## time: eef to object time, eef to bin time, object to bin time, total time
-    times = list(np.array([path23_start_id - 1, path2_end_id - path23_start_id, min(len(states), path3_end_id) - path23_start_id, len(states)]) / 20)
+        ## time: eef to object time, eef to bin time, object to bin time, total time
+        times = list(np.array([path23_start_id - 1, path2_end_id - path23_start_id, min(len(states), path3_end_id) - path23_start_id, len(states)]) / 20)
 
-    # Fit a curve to the trajectory using cubic spline interpolation
-    trajectory = np.array(eef_poses[path23_start_id:path2_end_id + 1])
-    t = np.linspace(0, 1, len(trajectory))
-    cs = CubicSpline(t, trajectory)
+        
+        ## speed smoothness: "The smoothness value is a cumulative function of the end effector's linear and angular accelerations."
+        speed_smoothness = 0
+        for i, state in enumerate(states):
+            actions = np.array(f["data/{}/actions".format(ep)][()])
+            env.sim.set_state_from_flattened(state)
+            env.sim.forward()
+            env.step(actions[i])
+            cur_smoothness = np.sqrt(np.linalg.norm(env.robots[0].recent_ee_acc.current))
+            speed_smoothness += cur_smoothness
 
-    # TODO: Generate a new trajectory by sampling points along the curve
-    '''
-    new_trajectory = []
-    num_points = 50
-    for i in range(num_points):
-        t = i / (num_points - 1)
-        ee_pos = cs(t)
-        new_trajectory.append(ee_pos)
-    '''
-    ## trajectory stableness
-    ## trajectory shape
-            
+        speed_smoothness /= len(states)
 
-    # write datasets
-    ep_data_grp = grp.create_group(ep)
-    ## Safety
-    # collisions
-    ep_data_grp.attrs["num_collisions"] = num_collisions
-    ep_data_grp.attrs["geom_id2name"] = json.dumps(geom_id2name)
-    ep_data_grp.create_dataset("contacts", data=np.array(contact_arrays))
-    # distances
-    ep_data_grp.attrs["distance_columns"] = ["distance_to_table", "distance_to_left_edge", "distance_to_right_edge", "distance_to_front_edge", "distance_to_back_edge"]
-    ep_data_grp.create_dataset("distances", data=np.array(distances))
-    # TODO: contact force
+        ## trajectory smoothness
+        trajectory_smoothness /= len(states)
+                
 
-    ## Efficiency
-    # speeds
-    ep_data_grp.attrs["speed_columns"] = ["xvelp", "yvelp", "zvelp", "xvelr", "yvelr", "zvelr"]
-    ep_data_grp.create_dataset("speeds", data=np.array(speeds))    
-    # path lengths
-    ep_data_grp.attrs["path_length_columns"] = ["eef_to_object", "eef_to_bin", "object_to_bin"]
-    ep_data_grp.attrs["path_lengths"] = path_lengths
-    ep_data_grp.attrs["path23_start_id"] = path23_start_id
-    ep_data_grp.attrs["path2_end_id"] = path2_end_id
-    ep_data_grp.attrs["path3_end_id"] = path3_end_id
-    ep_data_grp.create_dataset("eef_poses", data=np.array(eef_poses))
-    ep_data_grp.create_dataset("obj_poses", data=np.array(obj_poses))
-    # times
-    ep_data_grp.attrs["time_columns"] = ["eef_to_object", "eef_to_bin", "object_to_bin", "total"]
-    ep_data_grp.attrs["times"] = times
+        # write datasets
+        ep_data_grp = grp.create_group(ep)
+        ## Safety
+        # collisions
+        ep_data_grp.attrs["num_collisions"] = num_collisions
+        ep_data_grp.attrs["geom_id2name"] = json.dumps(geom_id2name)
+        ep_data_grp.create_dataset("contacts", data=np.array(contact_arrays))
+        # distances
+        ep_data_grp.attrs["distance_columns"] = ["distance_to_table", "distance_to_left_edge", "distance_to_right_edge", "distance_to_front_edge", "distance_to_back_edge"]
+        ep_data_grp.create_dataset("distances", data=np.array(distances))
+        # contact force
+        ep_data_grp.create_dataset("contact_force",data = np.array(ee_force))
+        ## Efficiency
+        # speeds
+        ep_data_grp.attrs["speed_columns"] = ["xvelp", "yvelp", "zvelp", "xvelr", "yvelr", "zvelr"]
+        ep_data_grp.create_dataset("speeds", data=np.array(speeds))    
+        # path lengths
+        ep_data_grp.attrs["path_length_columns"] = ["eef_to_object", "eef_to_bin", "object_to_bin"]
+        ep_data_grp.attrs["path_lengths"] = path_lengths
+        ep_data_grp.attrs["path23_start_id"] = path23_start_id
+        ep_data_grp.attrs["path2_end_id"] = path2_end_id
+        ep_data_grp.attrs["path3_end_id"] = path3_end_id
+        ep_data_grp.create_dataset("eef_poses", data=np.array(eef_poses))
+        ep_data_grp.create_dataset("obj_poses", data=np.array(obj_poses))
+        # times
+        ep_data_grp.attrs["time_columns"] = ["eef_to_object", "eef_to_bin", "object_to_bin", "total"]
+        ep_data_grp.attrs["times"] = times
 
-    ## Quality
-    # TODO: speed smoothness
-    # TODO: trajectory stableness
-    # TODO: trajectory shape
-    # orientation
-    ep_data_grp.create_dataset("eef_rot_eulers", data=np.array(eef_rot_eulers))
-    ep_data_grp.create_dataset("obj_rot_eulers", data=np.array(obj_rot_eulers))
-    ep_data_grp.create_dataset("rel_rot_eulers", data=np.array(rel_rot_eulers))
-    ep_data_grp.create_dataset("obj_to_eef_angles", data=np.array(obj_to_eef_angles))
+        ## Quality
+        # speed smoothness
+        ep_data_grp.create_dataset("speed_smoothness", data=np.array(speed_smoothness))
+        # trajectory smoothness
+        ep_data_grp.create_dataset("trajectory_smoothness", data=np.array(trajectory_smoothness))
+        # orientation
+        ep_data_grp.create_dataset("eef_rot_eulers", data=np.array(eef_rot_eulers))
+        ep_data_grp.create_dataset("obj_rot_eulers", data=np.array(obj_rot_eulers))
+        ep_data_grp.create_dataset("rel_rot_eulers", data=np.array(rel_rot_eulers))
+        ep_data_grp.create_dataset("obj_to_eef_angles", data=np.array(obj_to_eef_angles))
 
-    # ep_data_grp.attrs["model_file"] = f["data"].attrs["model_file"]
+        # ep_data_grp.attrs["model_file"] = f["data"].attrs["model_file"]
  # %%
 """
 generate keyframe informations
