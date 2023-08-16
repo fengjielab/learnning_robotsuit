@@ -87,6 +87,7 @@ with h5py.File(output_hdf5, "w") as outfile:
                 ):
                     # check if eef path and object path are similar
                     states = f[f"data/{ep}"]["states"][()]
+                    prev_contacts = set()
 
                     for i, state in enumerate(states):
                         env.sim.set_state_from_flattened(state)
@@ -109,8 +110,13 @@ with h5py.File(output_hdf5, "w") as outfile:
                         if (
                             "gripper0_finger1_pad_collision" in contacts
                             and "gripper0_finger2_pad_collision" in contacts
+                            and "gripper0_finger1_pad_collision" in prev_contacts
+                            and "gripper0_finger2_pad_collision" in prev_contacts
                         ):
                             selected_traj.add(ep)
+
+                        if i%10 == 0:
+                            prev_contacts = contacts
             else:
                 for ep in tqdm(
                     f["data"].keys(), desc=data_type + ": select < 8s demos"

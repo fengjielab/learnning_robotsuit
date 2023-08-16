@@ -30,7 +30,7 @@ parser.add_argument(
 parser.add_argument(
     "--feature_dir",
     type=str,
-    default="../../trajectory-preference-collection-tool/server/database/videos",
+    default="../../trajectory-preference-collection-tool/server/database/raw",
     help="feature directory",
 )
 args = parser.parse_args()
@@ -54,6 +54,7 @@ print(f"hdf5 file: {hdf5_path}")
 
 f_writer = h5py.File(feature_path, "w")
 grp = f_writer.create_group("data")
+stat_grp = f_writer.create_group("stats")
 print(f"feature file: {feature_path}")
 
 # %%
@@ -75,16 +76,15 @@ env = suite.make(env_name, **env_info)
 # P2. Efficiency:
 # - P2.1. Speed;
 # - P2.2. Path Length;
-# - P2.3. Success Rate;
-# - P2.4. Time;
-# - P2.5. Energy;
+# - P2.3. Time;
+# - P2.4. Energy;
 
 # %% [markdown]
 # P3. Quality
 # - P3.1. Smoothness;
 # - P3.2. Stableness;
-# - P3.3. Trajectory Shape;
-# - P3.4. Orientation;
+# - P3.3. Orientation;
+# - P3.4. Grasp Pose;
 
 # %%
 """
@@ -123,8 +123,8 @@ with tqdm(demo_names) as pbar:
         pre_dis_vec = []
         trajectory_smoothness = 0
 
-        joint_pos = []     
-        pre_joint_pos = [] 
+        joint_pos = []
+        pre_joint_pos = []
         pseudo_cost = 0
 
         eef_rot_eulers = []
@@ -133,6 +133,8 @@ with tqdm(demo_names) as pbar:
         max_obj_rot_deg = 0
         rel_rot_eulers = []
         obj_to_eef_angles = []
+
+        grasp_pos = np.array([0, 0, 0])
 
         for i, state in enumerate(states):
             env.sim.set_state_from_flattened(state)
@@ -143,10 +145,23 @@ with tqdm(demo_names) as pbar:
             ### Safety ###
             ## collision detection
             contacts = env.get_contacts(obj_to_use)
-            contact_array = [item[0] in contacts or item[1] in contacts for item in geom_id2name.items()]
+            contact_array = [
+                item[0] in contacts or item[1] in contacts
+                for item in geom_id2name.items()
+            ]
             contact_arrays.append(contact_array)
             if (
-                np.all([("robot" not in str(c) and "gripper" not in str(c) and c != 7 and c != 21) for c in contacts])
+                np.all(
+                    [
+                        (
+                            "robot" not in str(c)
+                            and "gripper" not in str(c)
+                            and c != 7
+                            and c != 21
+                        )
+                        for c in contacts
+                    ]
+                )
                 and len(contacts) != 0
             ):
                 num_collisions += 1
@@ -164,8 +179,16 @@ with tqdm(demo_names) as pbar:
             dis_to_right_edge = table_right_edge_y - obj_pos[1]
             dis_to_front_edge = table_front_edge_x - obj_pos[0]
             dis_to_back_edge = obj_pos[0] - table_back_edge_x
-            distances.append([dis_to_table, dis_to_left_edge, dis_to_right_edge, dis_to_front_edge, dis_to_back_edge])
-            
+            distances.append(
+                [
+                    dis_to_table,
+                    dis_to_left_edge,
+                    dis_to_right_edge,
+                    dis_to_front_edge,
+                    dis_to_back_edge,
+                ]
+            )
+
             ## get contact force
             ee_force.append(env.robots[0].ee_force)
 
@@ -178,13 +201,18 @@ with tqdm(demo_names) as pbar:
             ## path length: eef to object, eef to bin, object to bin
             eef_pos = env.sim.data.get_body_xpos("gripper0_eef").copy()
             if path23_start_id == 0:
-                path_lengths[0] += np.linalg.norm(eef_pos - eef_poses[-1]) if i != 0 else 0
+                path_lengths[0] += (
+                    np.linalg.norm(eef_pos - eef_poses[-1]) if i != 0 else 0
+                )
                 if 7 in prev_contacts - contacts:
                     path23_start_id = i
             else:
                 path_lengths[2] += np.linalg.norm(obj_pos - obj_poses[-1])
                 path_lengths[1] += np.linalg.norm(eef_pos - eef_poses[-1])
-                if 'gripper0_finger1_pad_collision' in prev_contacts - contacts or 21 in contacts - prev_contacts:
+                if (
+                    "gripper0_finger1_pad_collision" in prev_contacts - contacts
+                    or 21 in contacts - prev_contacts
+                ):
                     path2_end_id = i
                 if 21 in prev_contacts - contacts:
                     path3_end_id = i
@@ -192,9 +220,9 @@ with tqdm(demo_names) as pbar:
 
             ## pseudo energy
             joint_pos = env.robots[0]._joint_positions
-            if i > 0 :
+            if i > 0:
                 joint_move = np.array(joint_pos) - np.array(pre_joint_pos)
-                distance =   sum(abs(value) for value in joint_move)
+                distance = sum(abs(value) for value in joint_move)
                 pseudo_cost += distance
             pre_joint_pos = joint_pos
 
@@ -210,10 +238,8 @@ with tqdm(demo_names) as pbar:
                 cos_theta = np.clip(dot_product / norms_product, -1.0, 1.0)
                 angle = np.arccos(cos_theta)  # 这是以弧度为单位的角度
                 trajectory_smoothness += angle**2
-                
+
             pre_dis_vec = dis_vec
-            eef_poses.append(eef_pos)
-            obj_poses.append(obj_pos)
 
             ## orientation
             # Get rotation matrices for end-effector and can
@@ -230,13 +256,28 @@ with tqdm(demo_names) as pbar:
             rel_rot_deg = np.rad2deg(ee_to_obj_rot.magnitude())
             obj_to_eef_angles.append(rel_rot_deg)
 
+            ## grasp position
+            if path23_start_id != 0 and i > path23_start_id and i < path2_end_id and path2_end_id != len(states) - 1:
+                grasp_pos = obj_pos - eef_pos if np.linalg.norm(obj_pos - eef_pos) > np.linalg.norm(grasp_pos) else grasp_pos
+
             # end of rollout of this episode
+            eef_poses.append(eef_pos)
+            obj_poses.append(obj_pos)
             prev_contacts = contacts
 
         ## time: eef to object time, eef to bin time, object to bin time, total time
-        times = list(np.array([path23_start_id - 1, path2_end_id - path23_start_id, min(len(states), path3_end_id) - path23_start_id, len(states)]) / 20)
+        times = list(
+            np.array(
+                [
+                    path23_start_id - 1,
+                    path2_end_id - path23_start_id,
+                    min(len(states), path3_end_id) - path23_start_id,
+                    len(states),
+                ]
+            )
+            / 20
+        )
 
-        
         ## speed smoothness: "The smoothness value is a cumulative function of the end effector's linear and angular accelerations."
         speed_smoothness = 0
         for i, state in enumerate(states):
@@ -244,60 +285,204 @@ with tqdm(demo_names) as pbar:
             env.sim.set_state_from_flattened(state)
             env.sim.forward()
             env.step(actions[i])
-            cur_smoothness = np.sqrt(np.linalg.norm(env.robots[0].recent_ee_acc.current))
+            cur_smoothness = np.sqrt(
+                np.linalg.norm(env.robots[0].recent_ee_acc.current)
+            )
             speed_smoothness += cur_smoothness
 
         speed_smoothness /= len(states)
 
         ## trajectory smoothness
         trajectory_smoothness /= len(states)
-                
 
         # write datasets
         ep_data_grp = grp.create_group(ep)
         ## Safety
         # collisions
         ep_data_grp.attrs["num_collisions"] = num_collisions
+        ep_data_grp.create_dataset("num_collisions", data=np.array(num_collisions))
         ep_data_grp.attrs["geom_id2name"] = json.dumps(geom_id2name)
         ep_data_grp.create_dataset("contacts", data=np.array(contact_arrays))
         # distances
-        ep_data_grp.attrs["distance_columns"] = ["distance_to_table", "distance_to_left_edge", "distance_to_right_edge", "distance_to_front_edge", "distance_to_back_edge"]
+        ep_data_grp.attrs["distance_columns"] = [
+            "distance_to_table",
+            "distance_to_left_edge",
+            "distance_to_right_edge",
+            "distance_to_front_edge",
+            "distance_to_back_edge",
+        ]
         ep_data_grp.create_dataset("distances", data=np.array(distances))
         # contact force
-        ep_data_grp.create_dataset("contact_force",data = np.array(ee_force))
+        ep_data_grp.create_dataset("contact_force", data=np.array(ee_force))
         ## Efficiency
         # speeds
-        ep_data_grp.attrs["speed_columns"] = ["xvelp", "yvelp", "zvelp", "xvelr", "yvelr", "zvelr"]
-        ep_data_grp.create_dataset("speeds", data=np.array(speeds))    
+        ep_data_grp.attrs["speed_columns"] = [
+            "xvelp",
+            "yvelp",
+            "zvelp",
+            "xvelr",
+            "yvelr",
+            "zvelr",
+        ]
+        ep_data_grp.create_dataset("speeds", data=np.array(speeds))
         # path lengths
-        ep_data_grp.attrs["path_length_columns"] = ["eef_to_object", "eef_to_bin", "object_to_bin"]
-        ep_data_grp.attrs["path_lengths"] = path_lengths
+        ep_data_grp.attrs["path_length_columns"] = [
+            "eef_to_object",
+            "eef_to_bin",
+            "object_to_bin",
+        ]
+        ep_data_grp.create_dataset("path_lengths", data=np.array(path_lengths))
         ep_data_grp.attrs["path23_start_id"] = path23_start_id
+        ep_data_grp.create_dataset("path23_start_id", data=path23_start_id)
         ep_data_grp.attrs["path2_end_id"] = path2_end_id
+        ep_data_grp.create_dataset("path2_end_id", data=path2_end_id)
         ep_data_grp.attrs["path3_end_id"] = path3_end_id
+        ep_data_grp.create_dataset("path3_end_id", data=path3_end_id)
         ep_data_grp.create_dataset("eef_poses", data=np.array(eef_poses))
         ep_data_grp.create_dataset("obj_poses", data=np.array(obj_poses))
         # times
-        ep_data_grp.attrs["time_columns"] = ["eef_to_object", "eef_to_bin", "object_to_bin", "total"]
-        ep_data_grp.attrs["times"] = times
+        ep_data_grp.attrs["time_columns"] = [
+            "eef_to_object",
+            "eef_to_bin",
+            "object_to_bin",
+            "total",
+        ]
+        ep_data_grp.create_dataset("times", data=np.array(times))
+        # pseudo cost
+        ep_data_grp.create_dataset("pseudo_cost", data=np.array(pseudo_cost))
 
         ## Quality
         # speed smoothness
         ep_data_grp.create_dataset("speed_smoothness", data=np.array(speed_smoothness))
         # trajectory smoothness
-        ep_data_grp.create_dataset("trajectory_smoothness", data=np.array(trajectory_smoothness))
+        ep_data_grp.create_dataset(
+            "trajectory_smoothness", data=np.array(trajectory_smoothness)
+        )
         # orientation
         ep_data_grp.create_dataset("eef_rot_eulers", data=np.array(eef_rot_eulers))
         ep_data_grp.create_dataset("obj_rot_eulers", data=np.array(obj_rot_eulers))
         ep_data_grp.create_dataset("rel_rot_eulers", data=np.array(rel_rot_eulers))
-        ep_data_grp.create_dataset("obj_to_eef_angles", data=np.array(obj_to_eef_angles))
+        ep_data_grp.create_dataset(
+            "obj_to_eef_angles", data=np.array(obj_to_eef_angles)
+        )
+        # grasp position
+        ep_data_grp.create_dataset("grasp_pos", data=np.array(grasp_pos))
 
-        # ep_data_grp.attrs["model_file"] = f["data"].attrs["model_file"]
- # %%
-"""
-generate keyframe informations
-"""
+# %%
+# calculate stats and write to 'stats' group
+def create_stat_subgroup(group, subgroup_name, subgroup_data, description=None):
+    subgroup = group.create_group(subgroup_name)
+    if description is not None:
+        subgroup.attrs["description"] = description
+    subgroup.create_dataset("mean", data=np.mean(subgroup_data))
+    subgroup.create_dataset("std", data=np.std(subgroup_data))
+    subgroup.create_dataset("min", data=np.min(subgroup_data))
+    subgroup.create_dataset("max", data=np.max(subgroup_data))
+    subgroup.create_dataset("median", data=np.median(subgroup_data))
+    subgroup.create_dataset("percentile_25", data=np.percentile(subgroup_data, 25))
+    subgroup.create_dataset("percentile_75", data=np.percentile(subgroup_data, 75))
 
+
+# Safety
+# P1.1. num of collisions
+num_collisions = np.array(
+    [f_writer["data/{}/num_collisions".format(ep)][()] for ep in demo_names]
+)
+create_stat_subgroup(stat_grp, "num_collisions", num_collisions, "number of collisions")
+
+# P1.2. highest point + nearest point to table edge
+max_height_to_table = np.array(
+    [np.max(f_writer["data/{}/distances".format(ep)][()][:, 0]) for ep in demo_names]
+)
+min_distance_to_edge = np.array(
+    [np.min(f_writer["data/{}/distances".format(ep)][()][:, 1:]) for ep in demo_names]
+)
+dist_grp = stat_grp.create_group("distances")
+create_stat_subgroup(
+    dist_grp, "max_height_to_table", max_height_to_table, "max height to table"
+)
+create_stat_subgroup(
+    dist_grp, "min_distance_to_edge", min_distance_to_edge, "min distance to edge"
+)
+
+# P1.3. max eef force
+max_force_magnitude = np.array(
+    [
+        np.max(
+            np.linalg.norm(f_writer["data/{}/contact_force".format(ep)][()], axis=-1)
+        )
+        for ep in demo_names
+    ]
+)
+create_stat_subgroup(
+    stat_grp, "max_ee_force", max_force_magnitude, "max end-effector force"
+)
+
+# Efficiency
+# P2.1. average speed magnitude
+avg_speed_magnitude = np.array(
+    [
+        np.mean(np.linalg.norm(f_writer["data/{}/speeds".format(ep)][()], axis=-1))
+        for ep in demo_names
+    ]
+)
+create_stat_subgroup(stat_grp, "avg_speeds", avg_speed_magnitude, "average speed")
+
+# P2.2. path lengths
+reach_lengths = np.array(
+    [f_writer["data/{}/path_lengths".format(ep)][()][0] for ep in demo_names]
+)
+grasp_lengths = np.array(
+    [f_writer["data/{}/path_lengths".format(ep)][()][1] for ep in demo_names]
+)
+obj_path_lengths = np.array(
+    [f_writer["data/{}/path_lengths".format(ep)][()][2] for ep in demo_names]
+)
+path_grp = stat_grp.create_group("path_lengths")
+create_stat_subgroup(path_grp, "reach_lengths", reach_lengths, "reaching path length")
+create_stat_subgroup(path_grp, "grasp_lengths", grasp_lengths, "grasping path length")
+create_stat_subgroup(
+    path_grp, "obj_path_lengths", obj_path_lengths, "object path length"
+)
+
+# P2.3. total times
+times = np.array([f_writer["data/{}/times".format(ep)][()][-1] for ep in demo_names])
+create_stat_subgroup(stat_grp, "times", times, "total time")
+
+# P2.4. pseudo cost
+pseudo_costs = np.array(
+    [f_writer["data/{}/pseudo_cost".format(ep)][()] for ep in demo_names]
+)
+create_stat_subgroup(
+    stat_grp, "pseudo_cost", pseudo_costs, "pseudo cost to approximate energy"
+)
+
+# Quality
+# P3.1. speed smoothness
+speed_smoothness = np.array(
+    [f_writer["data/{}/speed_smoothness".format(ep)][()] for ep in demo_names]
+)
+create_stat_subgroup(stat_grp, "speed_smoothness", speed_smoothness, "smoothness")
+
+# P3.2. trajectory smoothness
+trajectory_smoothness = np.array(
+    [f_writer["data/{}/trajectory_smoothness".format(ep)][()] for ep in demo_names]
+)
+create_stat_subgroup(
+    stat_grp, "trajectory_smoothness", trajectory_smoothness, "trajectory smoothness"
+)
+
+# P3.3. orientation: max angle in degree between eef and object
+max_obj_to_eef_angles = np.array(
+    [np.max(f_writer["data/{}/obj_to_eef_angles".format(ep)][()]) for ep in demo_names]
+)
+create_stat_subgroup(stat_grp, "max_obj_to_eef_angles", max_obj_to_eef_angles, "max angle in degree between eef and object")
+
+# P3.4. grasp position: norm of object to eef vector
+grasp_pos = np.array(
+    [np.linalg.norm(f_writer["data/{}/grasp_pos".format(ep)][()]) for ep in demo_names]
+)
+create_stat_subgroup(stat_grp, "grasp_pos", grasp_pos, "grasp position (length to the center of object)")
 
 # %%
 # write dataset attributes (metadata)
