@@ -112,8 +112,10 @@ with tqdm(demo_names) as pbar:
 
         num_collisions = 0
         obj_contacts_list = []
+        obj_contact_arrays = []
         prev_object_contacts = set()
         gripper_contacts_list = []
+        gripper_contact_arrays = []
         collisions_list = []
         collision_frames = []
         collision_blocks = []
@@ -172,8 +174,34 @@ with tqdm(demo_names) as pbar:
                 ):
                     gripper_contacts.add(tuple(sorted([contact.geom1, contact.geom2])))
 
+            obj_contact_array = [
+                contact_id in obj_contacts for contact_id in geom_id2name.keys()
+            ]
+            obj_contact_arrays.append(obj_contact_array)
+
+            gripper_contact_array = [
+                tuple(sorted([gripper_id, contact_id])) in gripper_contacts
+                for gripper_id in gripper_geom_ids
+                for contact_id in geom_id2name.keys()
+            ]
+            gripper_contact_arrays.append(gripper_contact_array)
+
             # check gripped
-            gripped[i] = gripped[i] and 101 in obj_contacts and 104 in obj_contacts
+            gripped[i] = gripped[i] and (
+                (
+                    (100 in obj_contacts or 101 in obj_contacts)
+                    and (103 in obj_contacts or 104 in obj_contacts)
+                )
+                or (
+                    98 in obj_contacts
+                    and (
+                        100 in obj_contacts
+                        or 101 in obj_contacts
+                        or 103 in obj_contacts
+                        or 104 in obj_contacts
+                    )
+                )
+            )
 
             # find collisions in the contacts: collision is defined as contacts that are not 1. between gripper and this can, or 2. between table and this can
             collisions = set()
@@ -246,20 +274,20 @@ with tqdm(demo_names) as pbar:
                 path_lengths[0] += (
                     np.linalg.norm(eef_pos - eef_poses[-1]) if i != 0 else 0
                 )
-                if 7 in prev_object_contacts - obj_contacts and gripped[i]:
+                if 7 not in obj_contacts and gripped[i]:
                     path23_start_id = i
             else:
-                path_lengths[2] += np.linalg.norm(obj_pos - obj_poses[-1])
-                path_lengths[1] += np.linalg.norm(eef_pos - eef_poses[-1])
-                if (
-                    not gripped[i]
-                    and len(set(gripper_geom_ids).intersection(prev_object_contacts))
-                    > 0
-                    and len(set(gripper_geom_ids).intersection(obj_contacts)) == 0
-                ):
-                    path2_end_id = i
-                if 21 in prev_object_contacts - obj_contacts:
-                    path3_end_id = i
+                if path2_end_id == len(states) - 1:
+                    path_lengths[1] += np.linalg.norm(eef_pos - eef_poses[-1])
+                    if (
+                        not gripped[i]
+                        and len(set(gripper_geom_ids).intersection(obj_contacts)) == 0
+                    ):
+                        path2_end_id = i
+                if path3_end_id == len(states) - 1:
+                    path_lengths[2] += np.linalg.norm(obj_pos - obj_poses[-1])
+                    if 21 in prev_object_contacts - obj_contacts:
+                        path3_end_id = i
             # pbar.set_postfix({"path_lengths": path_lengths})
 
             ## pseudo energy
@@ -361,8 +389,9 @@ with tqdm(demo_names) as pbar:
         ep_data_grp.attrs["num_collisions"] = num_collisions
         ep_data_grp.create_dataset("num_collisions", data=np.array(num_collisions))
         ep_data_grp.attrs["geom_id2name"] = json.dumps(geom_id2name)
-        # ep_data_grp.create_dataset("obj_contacts", data=obj_contacts_list)
-        # ep_data_grp.create_dataset("gripper_contacts", data=gripper_contacts_list)
+        ep_data_grp.attrs["gripper_geom_ids"] = gripper_geom_ids
+        ep_data_grp.create_dataset("obj_contacts", data=obj_contact_arrays)
+        ep_data_grp.create_dataset("gripper_contacts", data=gripper_contact_arrays)
         # ep_data_grp.create_dataset("collisions", data=collisions_list)
         ep_data_grp.create_dataset("collision_frames", data=np.array(collision_frames))
         ep_data_grp.create_dataset("collision_blocks", data=np.array(collision_blocks))
@@ -396,7 +425,9 @@ with tqdm(demo_names) as pbar:
         ]
         ep_data_grp.create_dataset("path_lengths", data=np.array(path_lengths))
         ep_data_grp.attrs["path23_start_id"] = path23_start_id
+        assert path23_start_id != 0
         ep_data_grp.create_dataset("path23_start_id", data=path23_start_id)
+        assert path2_end_id != len(states) - 1
         ep_data_grp.attrs["path2_end_id"] = path2_end_id
         ep_data_grp.create_dataset("path2_end_id", data=path2_end_id)
         ep_data_grp.attrs["path3_end_id"] = path3_end_id

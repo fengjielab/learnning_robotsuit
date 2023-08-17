@@ -88,7 +88,7 @@ def copy_group_with_selected_traj(group, new_group, selected_traj):
 
 # %%
 with h5py.File(demo_path, "r") as demo_file:
-    if os.path.exists(sampled_demos_id_json_path):
+    if os.path.exists(sampled_demos_id_json_path) and not args.force:
         print("Loading sampled demos from {}".format(sampled_demos_id_json_path))
         with open(sampled_demos_id_json_path, "r") as f:
             sampled_demos = json.load(f)

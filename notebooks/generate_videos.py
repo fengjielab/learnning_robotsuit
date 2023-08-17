@@ -10,6 +10,7 @@ import argparse
 
 import robosuite
 import numpy as np
+from tqdm import tqdm
 
 # %%
 '''
@@ -52,26 +53,27 @@ get demos and generate videos
 '''
 demo_names = list(f['data'].keys())
 
-for ep in demo_names:
-    print(f'generating video for {ep}...')
-    # initialize video writers
-    video_dir = os.path.join(video_database, ep)
-    os.path.exists(video_dir) or os.makedirs(video_dir)
-    writers = {cam: imageio.get_writer(os.path.join(video_dir, f'{ep}_{cam}.mp4'), fps=20) for cam in env_info['camera_names']}
+with tqdm(demo_names) as pbar:
+    for ep in pbar:
+        pbar.set_postfix_str(f'episode: {ep}')
+        # initialize video writers
+        video_dir = os.path.join(video_database, ep)
+        os.path.exists(video_dir) or os.makedirs(video_dir)
+        writers = {cam: imageio.get_writer(os.path.join(video_dir, f'{ep}_{cam}.mp4'), fps=20) for cam in env_info['camera_names']}
 
-    states = f[f"data/{ep}/states"][()]
-    env.reset()
-    # env.sim.set_state_from_flattened(states[0])
+        states = f[f"data/{ep}/states"][()]
+        env.reset()
+        # env.sim.set_state_from_flattened(states[0])
 
-    for state in states:
-        env.sim.set_state_from_flattened(state)
-        env.sim.forward()
-        [writers[cam].append_data(env.sim.render(camera_name=cam, height=env_info["camera_heights"], width=env_info["camera_widths"])[::-1, :, :].astype(np.uint8))for cam in env_info['camera_names']]
+        for state in states:
+            env.sim.set_state_from_flattened(state)
+            env.sim.forward()
+            [writers[cam].append_data(env.sim.render(camera_name=cam, height=env_info["camera_heights"], width=env_info["camera_widths"])[::-1, :, :].astype(np.uint8))for cam in env_info['camera_names']]
 
-    obs, _, _, _ = env.step(f[f"data/{ep}/actions"][()][-1])
-    [writers[cam].append_data(obs[f"{cam}_image"][::-1, :, :].astype(np.uint8))for cam in env_info['camera_names']]
+        obs, _, _, _ = env.step(f[f"data/{ep}/actions"][()][-1])
+        [writers[cam].append_data(obs[f"{cam}_image"][::-1, :, :].astype(np.uint8))for cam in env_info['camera_names']]
 
-    [writers[cam].close() for cam in env_info['camera_names']]
+        [writers[cam].close() for cam in env_info['camera_names']]
         
 
 # %%

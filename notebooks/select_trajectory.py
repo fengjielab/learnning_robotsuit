@@ -3,6 +3,7 @@ import h5py
 import json
 import random
 import datetime
+import numpy as np
 
 import robosuite as suite
 
@@ -87,13 +88,18 @@ with h5py.File(output_hdf5, "w") as outfile:
                 ):
                     # check if eef path and object path are similar
                     states = f[f"data/{ep}"]["states"][()]
-                    prev_contacts = set()
+                    actions = f[f"data/{ep}"]["actions"][()]
+                    gripped = actions[:, -1] > 0
+                    midair = np.array([False] * states.shape[0])
 
                     for i, state in enumerate(states):
                         env.sim.set_state_from_flattened(state)
                         env.sim.forward()
-                        obj = env.objects[0]
-                        contacts = env.get_contacts(obj)
+                        obj_geom_id = list(env.obj_geom_id.values())[env.object_id][0]
+                        gripper_geom_ids = [
+                            env.sim.model.geom_name2id(name)
+                            for name in env.robots[0].gripper.contact_geoms
+                        ]
 
                         eef_pos = env.sim.data.get_body_xpos("gripper0_eef").copy()
                         if (
@@ -107,16 +113,34 @@ with h5py.File(output_hdf5, "w") as outfile:
                                 selected_traj.remove(ep)
                             break
 
-                        if (
-                            "gripper0_finger1_pad_collision" in contacts
-                            and "gripper0_finger2_pad_collision" in contacts
-                            and "gripper0_finger1_pad_collision" in prev_contacts
-                            and "gripper0_finger2_pad_collision" in prev_contacts
-                        ):
+                        obj_contacts = set()
+                        for contact in env.sim.data.contact:
+                            if contact.geom1 == obj_geom_id:
+                                obj_contacts.add(contact.geom2)
+                            elif contact.geom2 == obj_geom_id:
+                                obj_contacts.add(contact.geom1)
+
+                        gripped[i] = gripped[i] and (
+                            (
+                                (100 in obj_contacts or 101 in obj_contacts)
+                                and (103 in obj_contacts or 104 in obj_contacts)
+                            )
+                            or (
+                                98 in obj_contacts
+                                and (
+                                    100 in obj_contacts
+                                    or 101 in obj_contacts
+                                    or 103 in obj_contacts
+                                    or 104 in obj_contacts
+                                )
+                            )
+                        )
+
+                        midair[i] = np.all([c in gripper_geom_ids for c in obj_contacts])
+
+                        if i > 10 and np.all(gripped[i-10:i]) and np.all(midair[i-10:i]):
                             selected_traj.add(ep)
 
-                        if i%10 == 0:
-                            prev_contacts = contacts
             else:
                 for ep in tqdm(
                     f["data"].keys(), desc=data_type + ": select < 8s demos"
