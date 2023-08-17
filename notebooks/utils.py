@@ -1,9 +1,24 @@
-import os
 import numpy as np
-from lxml import etree
-from pprint import pprint
 import imageio
 from tqdm import tqdm
+
+def count_collision(collision_frames, gap=5):
+    if len(collision_frames) == 0:
+        return 0, []
+    left_of_collision = collision_frames[0]
+    last_frame = collision_frames[0]
+    collision_blocks = []
+    for current_frame in collision_frames:
+        if current_frame - last_frame > gap:
+            collision_blocks.append((left_of_collision, last_frame))
+            left_of_collision = current_frame
+        last_frame = current_frame
+    
+    # if left_of_collision != collision_frames[-1]:
+    collision_blocks.append((left_of_collision, current_frame))
+
+    number_of_collision_blocks = len(collision_blocks)
+    return number_of_collision_blocks, collision_blocks
 
 def update_xml(dst, src):
     if src is None:

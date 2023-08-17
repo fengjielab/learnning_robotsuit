@@ -68,6 +68,9 @@ for ep in demo_names:
         env.sim.forward()
         [writers[cam].append_data(env.sim.render(camera_name=cam, height=env_info["camera_heights"], width=env_info["camera_widths"])[::-1, :, :].astype(np.uint8))for cam in env_info['camera_names']]
 
+    obs, _, _, _ = env.step(f[f"data/{ep}/actions"][()][-1])
+    [writers[cam].append_data(obs[f"{cam}_image"][::-1, :, :].astype(np.uint8))for cam in env_info['camera_names']]
+
     [writers[cam].close() for cam in env_info['camera_names']]
         
 
