@@ -138,28 +138,28 @@ with h5py.File(feature_path, "r") as feature_file:
             ]
         )
 
-        # Calculate the class distribution of the original dataset for each feature
-        class_distributions = []
-        discrete_features = np.zeros_like(features).astype(int)
-        for i in range(features.shape[1]):
-            # Discretize the feature into 10 bins
-            bins = np.linspace(np.min(features[:, i]), np.max(features[:, i]), num=10)
-            discrete_features[:, i] = np.digitize(features[:, i], bins).astype(int)
-
-            # Calculate the class distribution of the original dataset for the discrete feature
-            class_distribution = np.bincount(discrete_features[:, i])
-            class_distributions.append(class_distribution)
-
-        # Calculate the weights for each episode based on their class distribution for each feature
-        weights = np.zeros(len(discrete_features))
-        for i in range(features.shape[1]):
-            weights += class_distributions[i][discrete_features[:, i]] / np.sum(
-                class_distributions[i]
-            )
-        # means = np.var(features, axis=0)
-        # weights = np.zeros(len(features))
+        # # Calculate the class distribution of the original dataset for each feature
+        # class_distributions = []
+        # discrete_features = np.zeros_like(features).astype(int)
         # for i in range(features.shape[1]):
-        #     weights += np.linalg.norm(features[:, i] - means[i])
+        #     # Discretize the feature into 10 bins
+        #     bins = np.linspace(np.min(features[:, i]), np.max(features[:, i]), num=10)
+        #     discrete_features[:, i] = np.digitize(features[:, i], bins).astype(int)
+
+        #     # Calculate the class distribution of the original dataset for the discrete feature
+        #     class_distribution = np.bincount(discrete_features[:, i])
+        #     class_distributions.append(class_distribution)
+
+        # # Calculate the weights for each episode based on their class distribution for each feature
+        # weights = np.zeros(len(discrete_features))
+        # for i in range(features.shape[1]):
+        #     weights += class_distributions[i][discrete_features[:, i]] / np.sum(
+        #         class_distributions[i]
+        #     )
+        means = np.var(features, axis=0)
+        weights = np.zeros(len(features))
+        for i in range(features.shape[1]):
+            weights += np.linalg.norm(features[:, i] - means[i])
 
         # Normalize the weights
         weights /= np.sum(weights)

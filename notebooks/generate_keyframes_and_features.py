@@ -64,6 +64,20 @@ keyframe_dir = args.keyframe_dir
 TIME_PER_FRAME = 0.05
 BUFFER_TIME = 0.25
 IMAGE_SIZE = 1024
+FEATURE_NAMES = [
+    "num_collisions",
+    "avg_speed",
+    "max_height_to_table",
+    "min_distance_to_edge",
+    "max_ee_force",
+    "reach_length",
+    "grasp_length",
+    "obj_path_length",
+    "total_time",
+    "pseudo_cost",
+    "speed_smoothness",
+    "trajectory_smoothness",
+]
 
 # %%
 """
@@ -77,16 +91,17 @@ print(f"feature file: {feature_path}")
 
 
 # %%
-def h5py_to_dict(h5py_file):
+def h5py_to_flattened_dict(h5py_file):
     d = {}
     for k, v in h5py_file.items():
         if isinstance(v, h5py.Dataset):
             value = v[()]
-            d[k] = (
-                value.tolist() if isinstance(value, (np.ndarray, np.number)) else value
-            )
+            d[k] = value.tolist() if isinstance(value, (np.ndarray, np.number)) else value
         elif isinstance(v, h5py.Group):
-            d[k] = h5py_to_dict(v)
+            if k in ["distances", "path_length"]:
+                d.update(h5py_to_flattened_dict(v))
+            else:
+                d[k] = h5py_to_flattened_dict(v)
     return d
 
 
@@ -102,15 +117,21 @@ def write_keyframe_image(keyframe_path, state, env, camera_name="frontview"):
                 camera_name=camera_name,
                 height=IMAGE_SIZE,
                 width=IMAGE_SIZE,
-            )[::-1, :, :].astype(np.uint8)
+            )[
+                ::-1, :, :
+            ].astype(np.uint8)
         )
+
+
+def most_anomalous_feature_id(feautres, feature_means, feature_stds):
+    return most_anomalous_feature_id
 
 
 # %%
 with h5py.File(hdf5_path, "r") as demo_f:
     with h5py.File(feature_path, "r") as feature_f:
         # write stats group in feature_f to json file
-        stats = h5py_to_dict(feature_f["stats"])
+        stats = h5py_to_flattened_dict(feature_f["stats"])
         stats_path = os.path.join(keyframe_dir, "feature_stats.json")
         with open(stats_path, "w") as stats_f:
             json.dump(stats, stats_f, indent=4)
@@ -147,40 +168,40 @@ with h5py.File(hdf5_path, "r") as demo_f:
 
                 ## collision ##
                 # number of collisions
-                num_collisions = feature_data_grp[ep]["num_collisions"][()]
-                feature_dict["num_collisions"] = int(num_collisions)
+                num_collisions = int(feature_data_grp[ep]["num_collisions"][()])
+                feature_dict["num_collisions"] = num_collisions
                 # collision keyframes
                 collision_blocks = feature_data_grp[ep]["collision_blocks"]
                 for block in collision_blocks:
-                    collision_keyframe_name = (
-                        f"{ep}_collision_{block[0]}_{block[1]}.png"
-                    )
+                    collision_keyframe_name = f"{ep}_collision_{block[0]}_{block[1]}.png"
                     write_keyframe_image(
                         os.path.join(keyframe_path, collision_keyframe_name),
                         states[block[0]],
                         env,
                         "agentview",
                     )
-                    keyframe_dict["collisions"].append([
+                    keyframe_dict["collisions"].append(
                         [
-                            TIME_PER_FRAME * block[0] - BUFFER_TIME,
-                            TIME_PER_FRAME * block[1] + BUFFER_TIME,
-                        ],
-                        os.path.join(
-                            "../server",
-                            *keyframe_path.split("/")[-3:],
-                            collision_keyframe_name,
-                        ),
-                    ])
+                            [
+                                TIME_PER_FRAME * block[0] - BUFFER_TIME,
+                                TIME_PER_FRAME * block[1] + BUFFER_TIME,
+                            ],
+                            os.path.join(
+                                "/",
+                                *keyframe_path.split("/")[-2:],
+                                collision_keyframe_name,
+                            ),
+                        ]
+                    )
 
                 ## distance ##
-                feature_dict["distances"] = {}
                 distances = feature_data_grp[ep]["distances"][()]
 
                 # highest point
                 highest_point_frame = np.argmax(distances[:, 0])
                 highest_point = distances[highest_point_frame, 0]
-                feature_dict["distances"]["max_height_to_table"] = float(highest_point)
+                max_height_to_table = float(highest_point)
+                feature_dict["max_height_to_table"] = max_height_to_table
                 # write highest point keyframe
                 highest_point_keyframe_name = f"{ep}_highest_point.png"
                 write_keyframe_image(
@@ -195,29 +216,22 @@ with h5py.File(hdf5_path, "r") as demo_f:
                         TIME_PER_FRAME * highest_point_frame + BUFFER_TIME,
                     ],
                     os.path.join(
-                        "../server",
-                        *keyframe_path.split("/")[-3:],
+                        "/",
+                        *keyframe_path.split("/")[-2:],
                         highest_point_keyframe_name,
                     ),
                 ]
 
                 # nearest point to edge
-                [nearest_point_to_edge_frame, edge_id] = np.unravel_index(np.argmin(distances[:, 1:]), distances[:, 1:].shape)
-                edge = (
-                    feature_f[f"data/{ep}"]
-                    .attrs["distance_columns"][edge_id + 1]
-                    .split("_")[-2]
+                [nearest_point_to_edge_frame, edge_id] = np.unravel_index(
+                    np.argmin(distances[:, 1:]), distances[:, 1:].shape
                 )
-                nearest_point_to_edge = distances[
-                    nearest_point_to_edge_frame, edge_id + 1
-                ]
-                feature_dict["distances"]["min_distance_to_edge"] = float(
-                    nearest_point_to_edge
-                )
+                edge = feature_f[f"data/{ep}"].attrs["distance_columns"][edge_id + 1].split("_")[-2]
+                nearest_point_to_edge = distances[nearest_point_to_edge_frame, edge_id + 1]
+                min_distance_to_edge = float(nearest_point_to_edge)
+                feature_dict["min_distance_to_edge"] = min_distance_to_edge
                 # write nearest point to edge keyframe
-                nearest_point_to_edge_keyframe_name = (
-                    f"{ep}_nearest_point_to_{edge}_edge.png"
-                )
+                nearest_point_to_edge_keyframe_name = f"{ep}_nearest_point_to_{edge}_edge.png"
                 write_keyframe_image(
                     os.path.join(keyframe_path, nearest_point_to_edge_keyframe_name),
                     states[nearest_point_to_edge_frame],
@@ -230,44 +244,39 @@ with h5py.File(hdf5_path, "r") as demo_f:
                         TIME_PER_FRAME * nearest_point_to_edge_frame + BUFFER_TIME,
                     ],
                     os.path.join(
-                        "../server",
-                        *keyframe_path.split("/")[-3:],
+                        "/",
+                        *keyframe_path.split("/")[-2:],
                         nearest_point_to_edge_keyframe_name,
                     ),
                 ]
 
                 ## deformation / contact force ##
                 # max eef force
-                max_eef_force = np.max(
-                    np.linalg.norm(feature_data_grp[ep]["contact_force"][()], axis=-1)
-                )
-                feature_dict["max_ee_force"] = float(max_eef_force)
+                max_ee_force = float(np.max(np.linalg.norm(feature_data_grp[ep]["contact_force"][()], axis=-1)))
+                feature_dict["max_ee_force"] = max_ee_force
 
                 ### Efficiency ###
                 ## speed ##
                 # average speed
-                average_speed = np.mean(
-                    np.linalg.norm(feature_data_grp[ep]["speeds"][()], axis=-1)
-                )
-                feature_dict["avg_speed"] = float(average_speed)
+                avg_speed = float(np.mean(np.linalg.norm(feature_data_grp[ep]["speeds"][()], axis=-1)))
+                feature_dict["avg_speed"] = avg_speed
 
                 ## path length ##
-                feature_dict["path_length"] = {}
                 # length of paths
                 # reach path
-                reach_path_length = feature_data_grp[ep]["path_lengths"][()][0]
-                feature_dict["path_length"]["reach_length"] = float(reach_path_length)
+                reach_length = float(feature_data_grp[ep]["path_lengths"][()][0])
+                feature_dict["reach_length"] = reach_length
                 # grasped path
-                grasped_path_length = feature_data_grp[ep]["path_lengths"][()][1]
-                feature_dict["path_length"]["grasp_length"] = float(grasped_path_length)
+                grasp_length = float(feature_data_grp[ep]["path_lengths"][()][1])
+                feature_dict["grasp_length"] = grasp_length
                 # obj path
-                obj_path_length = feature_data_grp[ep]["path_lengths"][()][2]
-                feature_dict["path_length"]["obj_length"] = float(obj_path_length)
+                obj_path_length = float(feature_data_grp[ep]["path_lengths"][()][2])
+                feature_dict["obj_path_length"] = obj_path_length
 
                 ## time ##
                 # total time
-                total_time = feature_data_grp[ep]["times"][()][-1]
-                feature_dict["total_time"] = float(total_time)
+                total_time = float(feature_data_grp[ep]["times"][()][-1])
+                feature_dict["total_time"] = total_time
                 # pick up point keyframe
                 pick_up_point_frame = int(feature_data_grp[ep]["path23_start_id"][()])
                 pick_up_point_keyframe_name = f"{ep}_pick_up_point.png"
@@ -283,8 +292,8 @@ with h5py.File(hdf5_path, "r") as demo_f:
                         TIME_PER_FRAME * pick_up_point_frame + BUFFER_TIME,
                     ],
                     os.path.join(
-                        "../server",
-                        *keyframe_path.split("/")[-3:],
+                        "/",
+                        *keyframe_path.split("/")[-2:],
                         pick_up_point_keyframe_name,
                     ),
                 ]
@@ -303,34 +312,59 @@ with h5py.File(hdf5_path, "r") as demo_f:
                         TIME_PER_FRAME * release_point_frame + BUFFER_TIME,
                     ],
                     os.path.join(
-                        "../server",
-                        *keyframe_path.split("/")[-3:],
+                        "/",
+                        *keyframe_path.split("/")[-2:],
                         release_point_keyframe_name,
                     ),
                 ]
 
                 ## energy ##
                 # pseudo-cost
-                pseudo_cost = feature_data_grp[ep]["pseudo_cost"][()]
-                feature_dict["pseudo_cost"] = float(pseudo_cost)
+                pseudo_cost = float(feature_data_grp[ep]["pseudo_cost"][()])
+                feature_dict["pseudo_cost"] = pseudo_cost
 
                 ### Task Quality ###
                 ## speed smoothness ##
                 # speed smoothness
-                speed_smoothness = feature_data_grp[ep]["speed_smoothness"][()]
-                feature_dict["speed_smoothness"] = float(speed_smoothness)
+                speed_smoothness = float(feature_data_grp[ep]["speed_smoothness"][()])
+                feature_dict["speed_smoothness"] = speed_smoothness
 
                 ## trajectory smoothness ##
                 # trajectory smoothness
-                trajectory_smoothness = feature_data_grp[ep]["trajectory_smoothness"][()]
-                feature_dict["trajectory_smoothness"] = float(trajectory_smoothness)
+                trajectory_smoothness = float(feature_data_grp[ep]["trajectory_smoothness"][()])
+                feature_dict["trajectory_smoothness"] = trajectory_smoothness
+
+                local_vars = locals()
+                features = [local_vars[feature_name] for feature_name in FEATURE_NAMES]
+                feature_means = np.array([stats[feature_name]["mean"] for feature_name in FEATURE_NAMES])
+                feature_stds = np.array([stats[feature_name]["std"] for feature_name in FEATURE_NAMES])
+                
+                max_z_score = -float("inf")
+                most_anomalous_feature_id = None
+                for feature, mean, std in zip(features, feature_means, feature_stds):
+                    z_score = abs((feature - mean) / std)
+                    if z_score > max_z_score:
+                        max_z_score = z_score
+                        most_anomalous_feature_id = features.index(feature)
+
+                most_anomalous_feature_name = FEATURE_NAMES[most_anomalous_feature_id]
+
+                # save features to feature dict displaying the most anomalous feature
+                feature_dict["anomaly"] = most_anomalous_feature_name
 
                 ### end of episode ###
-                json_path = os.path.join(keyframe_path, f"{ep}_keyframes_features.json")
+                keyframe_json_path = os.path.join(keyframe_path, f"{ep}_keyframes.json")
+                feature_json_path = os.path.join(keyframe_path, f"{ep}_features.json")
                 # Convert int64 values to int values
-                with open(json_path, "w") as json_f:
+                with open(keyframe_json_path, "w") as json_f:
                     json.dump(
-                        {"keyframe": keyframe_dict, "feature": feature_dict},
+                        keyframe_dict,
+                        json_f,
+                        indent=4,
+                    )
+                with open(feature_json_path, "w") as json_f:
+                    json.dump(
+                        feature_dict,
                         json_f,
                         indent=4,
                     )
