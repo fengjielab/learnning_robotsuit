@@ -27,7 +27,9 @@ import argparse
 import datetime
 
 import numpy as np
+import pandas as pd
 from tqdm import tqdm
+from scipy.stats import gaussian_kde
 
 import robosuite as suite
 
@@ -89,6 +91,8 @@ print(f"hdf5 file: {hdf5_path}")
 
 print(f"feature file: {feature_path}")
 
+
+feature_df = pd.DataFrame(columns=FEATURE_NAMES)
 
 # %%
 def h5py_to_flattened_dict(h5py_file):
@@ -351,6 +355,7 @@ with h5py.File(hdf5_path, "r") as demo_f:
 
                 # save features to feature dict displaying the most anomalous feature
                 feature_dict["anomaly"] = most_anomalous_feature_name
+                feature_df = pd.concat([feature_df, pd.DataFrame(feature_dict, index=[0])], ignore_index=True)
 
                 ### end of episode ###
                 keyframe_json_path = os.path.join(keyframe_path, f"{ep}_keyframes.json")
@@ -368,3 +373,10 @@ with h5py.File(hdf5_path, "r") as demo_f:
                         json_f,
                         indent=4,
                     )
+
+for feature_name in FEATURE_NAMES:
+    feature_df[feature_name+"_density"] = feature_df[feature_name].apply(
+        lambda x: gaussian_kde(feature_df[feature_name].values.tolist())(x)[0]
+    )
+feature_df.to_csv(os.path.join(keyframe_dir, "all_features.csv"), index=False)
+feature_df.to_json(os.path.join(keyframe_dir, "all_features.json"), orient="columns", indent=4)
