@@ -6,7 +6,8 @@ import numpy as np
 import robosuite.utils.transform_utils as T
 from robosuite.environments.manipulation.single_arm_env import SingleArmEnv
 from robosuite.models.arenas import BinsArena
-# bread, can, cereal, milk, bottle, lemon 
+
+# bread, can, cereal, milk, bottle, lemon
 from robosuite.models.objects import (
     BreadObject,
     BreadVisualObject,
@@ -17,7 +18,7 @@ from robosuite.models.objects import (
     MilkObject,
     MilkVisualObject,
     LemonObject,
-    BottleObject
+    BottleObject,
 )
 from robosuite.models.tasks import ManipulationTask
 from robosuite.utils.observables import Observable, sensor
@@ -386,7 +387,6 @@ class PickPlaceCans(SingleArmEnv):
         return r_reach, r_grasp, r_lift, r_hover
 
     def not_in_bin(self, obj_pos, bin_id):
-
         bin_x_low = self.bin2_pos[0]
         bin_y_low = self.bin2_pos[1]
         if bin_id == 0 or bin_id == 2:
@@ -421,7 +421,6 @@ class PickPlaceCans(SingleArmEnv):
 
         # print(self.model.mujoco_arena.table_full_size[1])
         # print(bin_y_half)
-
 
         # # the first object that at fixed position: REVISION-6
         # self.placement_initializer.append_sampler(
@@ -459,13 +458,12 @@ class PickPlaceCans(SingleArmEnv):
         # Note: no use if no visulization
         index = 0
         for vis_obj in self.visual_objects:
-
             # get center of target bin
             bin_x_low = self.bin2_pos[0]
             bin_y_low = self.bin2_pos[1]
             if index == 0 or index == 2:
                 bin_x_low -= self.bin_size[0] / 2
-            #if index < 2: REVISION-2
+            # if index < 2: REVISION-2
             if index < 2 or index > 3:
                 bin_y_low -= self.bin_size[1] / 2
             bin_x_high = bin_x_low + self.bin_size[0] / 2
@@ -520,7 +518,7 @@ class PickPlaceCans(SingleArmEnv):
         self.objects = []
         self.visual_objects = []
         for vis_obj_cls, obj_name in zip(
-            (), # REVISION-7: remove visualization of target positions
+            (),  # REVISION-7: remove visualization of target positions
             self.obj_names,
         ):
             vis_name = "Visual" + obj_name
@@ -613,15 +611,13 @@ class PickPlaceCans(SingleArmEnv):
             enableds = [True]
             actives = [False]
 
-
-
             for i, obj in enumerate(self.objects):
                 # Create object sensors
                 using_obj = self.single_object_mode == 0 or self.object_id == i
                 obj_sensors, obj_sensor_names = self._create_obj_sensors(obj_name=obj.name, modality=modality)
                 sensors += obj_sensors
                 names += obj_sensor_names
-                enableds += [using_obj] * 4 
+                enableds += [using_obj] * 4
                 actives += [using_obj] * 4
                 # enableds += [using_obj] * 6
                 # actives += [using_obj] * 6
@@ -751,13 +747,12 @@ class PickPlaceCans(SingleArmEnv):
             # Note: no use if no visulization
             index = 0
             for vis_obj in self.visual_objects:
-
                 # get center of target bin
                 bin_x_low = self.bin2_pos[0]
                 bin_y_low = self.bin2_pos[1]
                 if index == 0 or index == 2:
                     bin_x_low -= self.bin_size[0] / 2
-                #if index < 2: REVISION-2
+                # if index < 2: REVISION-2
                 if index < 2 or index > 3:
                     bin_y_low -= self.bin_size[1] / 2
                 bin_x_high = bin_x_low + self.bin_size[0] / 2
@@ -788,17 +783,13 @@ class PickPlaceCans(SingleArmEnv):
                 )
                 index += 1
 
-
         # Reset all object positions using initializer sampler if we're not directly loading from an xml
         if not self.deterministic_reset:
-
             # Sample from the placement initializer for all objects
             object_placements = self.placement_initializer.sample()
             # print(object_placements.values())
             # print(object_placements.keys())
             # dict_keys(['Milk', 'Bread', 'Cereal', 'Can', 'Lemon', 'Bottle'])
-
-
 
             # Loop through all objects and reset their positions
             for obj_pos, obj_quat, obj in object_placements.values():
@@ -818,9 +809,8 @@ class PickPlaceCans(SingleArmEnv):
                     # Set the collision object joints (6)
                     self.sim.data.set_joint_qpos(obj.joints[0], np.concatenate([np.array(obj_pos), np.array(obj_quat)]))
                     # print(obj.joints[0])
-                
 
-        #self.sim.data.set_joint_qpos(obj.joints[0], np.concatenate([np.array(obj_pos), np.array(obj_quat)]))
+        # self.sim.data.set_joint_qpos(obj.joints[0], np.concatenate([np.array(obj_pos), np.array(obj_quat)]))
 
         # print("set milk")
         # obj_pos_fix = (-1, -1, 0)
@@ -831,9 +821,8 @@ class PickPlaceCans(SingleArmEnv):
         # print(self.sim.model.body_quat[self.obj_body_id["Milk"]]) # cur: [1. 0. 0. 0.]
         # print(self.sim.model.body_pos[self.obj_body_id["Bread"]])  # not index random: [0. 0. 0.]
         # print(self.sim.model.body_quat[self.obj_body_id["Bread"]]) # not index random: [1. 0. 0. 0.]
-        
-        
-        #self.sim.model.body_pos[self.obj_body_id["Milk"]] =  np.array((-0.3, -0.3, 0)) #not working
+
+        # self.sim.model.body_pos[self.obj_body_id["Milk"]] =  np.array((-0.3, -0.3, 0)) #not working
 
         # Set the bins to the desired position
         self.sim.model.body_pos[self.sim.model.body_name2id("bin1")] = self.bin1_pos
@@ -863,7 +852,6 @@ class PickPlaceCans(SingleArmEnv):
                     self._observables[name].set_enabled(i == self.object_id)
                     self._observables[name].set_active(i == self.object_id)
 
-
     def _check_success(self):
         """
         Check if all objects have been successfully placed in their corresponding bins.
@@ -878,7 +866,9 @@ class PickPlaceCans(SingleArmEnv):
             obj_pos = self.sim.data.body_xpos[self.obj_body_id[obj_str]]
             dist = np.linalg.norm(gripper_site_pos - obj_pos)
             r_reach = 1 - np.tanh(10.0 * dist)
-            self.objects_in_bins[i] = int(np.any([not self.not_in_bin(obj_pos, j) for j in self.object_to_id.values()]) and r_reach < 0.6)
+            self.objects_in_bins[i] = int(
+                np.any([not self.not_in_bin(obj_pos, j) for j in self.object_to_id.values()]) and r_reach < 0.6
+            )
 
         # returns True if a single object is in the correct bin
         if self.single_object_mode in {1, 2}:
