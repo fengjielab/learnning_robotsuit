@@ -126,11 +126,6 @@ def write_keyframe_image(keyframe_path, state, env, camera_name="frontview"):
             ].astype(np.uint8)
         )
 
-
-def most_anomalous_feature_id(feautres, feature_means, feature_stds):
-    return most_anomalous_feature_id
-
-
 # %%
 with h5py.File(hdf5_path, "r") as demo_f:
     with h5py.File(feature_path, "r") as feature_f:
