@@ -529,6 +529,8 @@ class PickPlaceCans(SingleArmEnv):
 
         for obj_cls, obj_name in zip(
             (CanObject, CanObject, CanObject, CanObject, CanObject, CanObject),
+            # ["Milk", "Bread", "Cereal", "Can", "Lemon", "Bottle"]
+            # (MilkObject, BreadObject, CerealObject, CanObject, LemonObject, BottleObject),
             self.obj_names,
         ):
             obj = obj_cls(name=obj_name)
