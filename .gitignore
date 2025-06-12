@@ -118,5 +118,6 @@ macros_private.py
 
 data
 database
+xin
 
 *.hdf5
