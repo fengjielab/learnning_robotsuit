@@ -1,0 +1,38 @@
+{
+  "run_name": "stage2_local_grasp_cube_small_20260406_155843",
+  "object_profile": "cube_small",
+  "object_policy": "fixed",
+  "camera_profile": "realsense_d435i",
+  "vision_input": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/vision_input_realsense_d435i_example.json",
+  "vision_labels": {
+    "object_class": "cube",
+    "shape_tag": "box",
+    "size_tag": "small",
+    "object_profile_name": "cube_small",
+    "detection_confidence": 0.98,
+    "source": "realsense_d435i_demo"
+  },
+  "seed": 7,
+  "total_timesteps": 300000,
+  "eval_freq": 10000,
+  "eval_episodes": 10,
+  "render_eval_freq": 50000,
+  "render_eval_episodes": 1,
+  "render_step_sleep": 0.02,
+  "algorithm": "PPO",
+  "controller": "OSC_POSE",
+  "training_stage": "stage2_local_grasp",
+  "notes": "Stage-1 assumed by helper-based local pregrasp reset. RL controls local pose + gripper only.",
+  "ppo_hyperparameters": {
+    "learning_rate": 5e-05,
+    "n_steps": 1024,
+    "batch_size": 128,
+    "n_epochs": 10,
+    "gamma": 0.99,
+    "gae_lambda": 0.95,
+    "clip_range": 0.1,
+    "ent_coef": 0.01,
+    "vf_coef": 0.5,
+    "max_grad_norm": 0.3
+  }
+}

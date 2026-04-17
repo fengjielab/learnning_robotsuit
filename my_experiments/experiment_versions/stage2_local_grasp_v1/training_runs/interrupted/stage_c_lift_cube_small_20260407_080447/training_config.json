@@ -1,0 +1,36 @@
+{
+  "run_name": "stage_c_lift_cube_small_20260407_080447",
+  "object_profile": "cube_small",
+  "object_policy": "fixed",
+  "camera_profile": "realsense_d435i",
+  "vision_input": null,
+  "vision_labels": {
+    "object_class": "cube",
+    "shape_tag": "box",
+    "size_tag": "small",
+    "object_profile_name": "cube_small",
+    "detection_confidence": 1.0,
+    "source": "manual_default"
+  },
+  "seed": 7,
+  "n_envs": 4,
+  "total_timesteps": 100000,
+  "eval_freq": 10000,
+  "eval_episodes": 10,
+  "algorithm": "PPO",
+  "controller": "OSC_POSE",
+  "training_stage": "stage_c_lift",
+  "notes": "Stage C reset simulates a stable Stage B grasp, then only learns lift and hold.",
+  "ppo_hyperparameters": {
+    "learning_rate": 4e-05,
+    "n_steps": 256,
+    "batch_size": 128,
+    "n_epochs": 10,
+    "gamma": 0.99,
+    "gae_lambda": 0.95,
+    "clip_range": 0.1,
+    "ent_coef": 0.002,
+    "vf_coef": 0.5,
+    "max_grad_norm": 0.3
+  }
+}

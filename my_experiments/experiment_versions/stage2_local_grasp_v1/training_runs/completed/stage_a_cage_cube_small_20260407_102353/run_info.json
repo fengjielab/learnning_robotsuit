@@ -1,0 +1,23 @@
+{
+  "run_name": "stage_a_cage_cube_small_20260407_102353",
+  "status": "completed",
+  "purpose": "Stage A 笼罩且不碰桌训练",
+  "script_name": "train_stage_a_cage.py",
+  "experiment_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1",
+  "started_at": "2026-04-07 10:23:53",
+  "ended_at": "2026-04-07 10:24:02",
+  "base_checkpoint": null,
+  "final_steps": 32,
+  "artifacts": {
+    "final_model": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/active/stage_a_cage_cube_small_20260407_102353/final_model_steps_32.zip",
+    "training_config": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/active/stage_a_cage_cube_small_20260407_102353/training_config.json"
+  },
+  "notes": "Stage A 训练完成，耗时 6.6 秒。",
+  "error_message": null,
+  "directories": {
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_a_cage_cube_small_20260407_102353",
+    "checkpoints": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_a_cage_cube_small_20260407_102353/checkpoints",
+    "logs": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_a_cage_cube_small_20260407_102353/logs",
+    "tensorboard": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_a_cage_cube_small_20260407_102353/tensorboard"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "run_name": "stage_b_grasp_continue_cube_small_20260411_211609",
+  "resume_from": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_b_grasp_cube_small_20260411_120759/checkpoints/stage_b_grasp_20000_steps.zip",
+  "resume_from_config": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_b_grasp_cube_small_20260411_120759/training_config.json",
+  "object_profile": "cube_small",
+  "object_policy": "fixed",
+  "camera_profile": "realsense_d435i",
+  "vision_input": null,
+  "vision_labels": {
+    "object_class": "cube",
+    "shape_tag": "box",
+    "size_tag": "small",
+    "object_profile_name": "cube_small",
+    "detection_confidence": 1.0,
+    "source": "manual_default"
+  },
+  "policy_uses_visual": false,
+  "vision_role": "classification_only",
+  "seed": 7,
+  "n_envs": 1,
+  "additional_timesteps": 20000,
+  "eval_freq": 10000,
+  "eval_episodes": 10,
+  "algorithm": "PPO",
+  "controller": "OSC_POSE",
+  "training_stage": "stage_b_grasp_continue",
+  "ppo_hyperparameters": {
+    "learning_rate": 2e-05,
+    "gamma": 0.99,
+    "gae_lambda": 0.95,
+    "clip_range": 0.05,
+    "ent_coef": 0.008,
+    "vf_coef": 0.5,
+    "max_grad_norm": 0.2,
+    "n_epochs": 5,
+    "n_steps": 1024,
+    "batch_size": 128
+  }
+}

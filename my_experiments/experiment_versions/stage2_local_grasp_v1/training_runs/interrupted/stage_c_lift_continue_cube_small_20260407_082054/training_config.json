@@ -1,0 +1,31 @@
+{
+  "run_name": "stage_c_lift_continue_cube_small_20260407_082054",
+  "resume_from": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/interrupted/stage_c_lift_cube_small_20260407_080447/interrupted_model_steps_80000.zip",
+  "resume_from_config": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/interrupted/stage_c_lift_cube_small_20260407_080447/training_config.json",
+  "object_profile": "cube_small",
+  "object_policy": "fixed",
+  "camera_profile": "realsense_d435i",
+  "vision_input": null,
+  "vision_labels": {
+    "object_class": "cube",
+    "shape_tag": "box",
+    "size_tag": "small",
+    "object_profile_name": "cube_small",
+    "detection_confidence": 1.0,
+    "source": "manual_default"
+  },
+  "seed": 7,
+  "n_envs": 4,
+  "additional_timesteps": 50000,
+  "eval_freq": 10000,
+  "eval_episodes": 10,
+  "algorithm": "PPO",
+  "controller": "OSC_POSE",
+  "training_stage": "stage_c_lift_continue",
+  "ppo_hyperparameters": {
+    "learning_rate": 4e-05,
+    "n_steps": 256,
+    "batch_size": 128,
+    "n_epochs": 10
+  }
+}

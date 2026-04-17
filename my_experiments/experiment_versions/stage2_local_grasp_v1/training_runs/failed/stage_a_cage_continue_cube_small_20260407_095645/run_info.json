@@ -1,0 +1,22 @@
+{
+  "run_name": "stage_a_cage_continue_cube_small_20260407_095645",
+  "status": "failed",
+  "purpose": "Stage A 笼罩且不碰桌继续训练",
+  "script_name": "continue_stage_a_cage.py",
+  "experiment_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1",
+  "started_at": "2026-04-07 09:56:45",
+  "ended_at": "2026-04-07 10:26:12",
+  "base_checkpoint": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_a_cage_continue_cube_small_20260406_203208/final_model_steps_200704.zip",
+  "final_steps": 209332,
+  "artifacts": {
+    "training_config": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/active/stage_a_cage_continue_cube_small_20260407_095645/training_config.json"
+  },
+  "notes": "Stage A 继续训练异常退出，请查看 run_info.json。",
+  "error_message": "CPUDispatcher(<function opspace_matrices at 0x7d524a37c940>) returned a result with an exception set",
+  "directories": {
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/failed/stage_a_cage_continue_cube_small_20260407_095645",
+    "checkpoints": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/failed/stage_a_cage_continue_cube_small_20260407_095645/checkpoints",
+    "logs": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/failed/stage_a_cage_continue_cube_small_20260407_095645/logs",
+    "tensorboard": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/failed/stage_a_cage_continue_cube_small_20260407_095645/tensorboard"
+  }
+}

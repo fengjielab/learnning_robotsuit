@@ -1,0 +1,23 @@
+{
+  "run_name": "stage_b_grasp_cube_small_20260411_120759",
+  "status": "completed",
+  "purpose": "Stage B 从 A 成功近似姿态出发，学习闭爪并形成 grasp",
+  "script_name": "train_stage_b_grasp.py",
+  "experiment_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1",
+  "started_at": "2026-04-11 12:07:59",
+  "ended_at": "2026-04-11 12:29:21",
+  "base_checkpoint": null,
+  "final_steps": 70656,
+  "artifacts": {
+    "final_model": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/active/stage_b_grasp_cube_small_20260411_120759/final_model_steps_70656.zip",
+    "training_config": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/active/stage_b_grasp_cube_small_20260411_120759/training_config.json"
+  },
+  "notes": "Stage B 训练完成，耗时 1278.6 秒。",
+  "error_message": null,
+  "directories": {
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_b_grasp_cube_small_20260411_120759",
+    "checkpoints": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_b_grasp_cube_small_20260411_120759/checkpoints",
+    "logs": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_b_grasp_cube_small_20260411_120759/logs",
+    "tensorboard": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_b_grasp_cube_small_20260411_120759/tensorboard"
+  }
+}

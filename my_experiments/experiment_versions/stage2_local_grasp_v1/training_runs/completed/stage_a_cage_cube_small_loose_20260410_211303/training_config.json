@@ -1,0 +1,217 @@
+{
+  "run_name": "stage_a_cage_cube_small_loose_20260410_211303",
+  "object_profile": "cube_small_loose",
+  "object_policy": "fixed",
+  "camera_profile": "realsense_d435i",
+  "reset_strategy": "teleop_like",
+  "vision_input": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/examples/vision_input_realsense_d435i_cube_small_loose.json",
+  "vision_labels": {
+    "object_class": "cube",
+    "shape_tag": "box",
+    "size_tag": "small_loose",
+    "object_profile_name": "cube_small_loose",
+    "detection_confidence": 0.98,
+    "source": "realsense_d435i_demo"
+  },
+  "grasp_condition": {
+    "object_profile_name": "cube_small_loose",
+    "object_class": "cube",
+    "shape_tag": "box",
+    "size_tag": "small_loose",
+    "condition_features": [
+      1.0,
+      0.0,
+      0.0
+    ],
+    "impedance_template": {
+      "template_name": "box_small_default_impedance_v1",
+      "impedance_mode": "fixed",
+      "kp": [
+        180.0,
+        180.0,
+        180.0,
+        140.0,
+        140.0,
+        140.0
+      ],
+      "damping_ratio": 1.1,
+      "output_max": [
+        0.03,
+        0.03,
+        0.03,
+        0.25,
+        0.25,
+        0.25
+      ],
+      "output_min": [
+        -0.03,
+        -0.03,
+        -0.03,
+        -0.25,
+        -0.25,
+        -0.25
+      ]
+    },
+    "stage_targets": {
+      "stage_a": {
+        "workflow_mode": "topdown_descend",
+        "local_target": [
+          0.026,
+          0.0,
+          0.0
+        ],
+        "reset_strategy": "teleop_like",
+        "teleop_handoff_reset": {
+          "bank_size": 6,
+          "reuse_limit": 256,
+          "cube_refresh_threshold": 0.03,
+          "bank_build_attempt_limit": 18,
+          "refine_steps": 18,
+          "handoff_xy_threshold": 0.022,
+          "handoff_vertical_threshold": 0.024,
+          "view_local_target": {
+            "x": 0.026,
+            "y": 0.0,
+            "z": 0.07
+          },
+          "view_local_tolerance": {
+            "x": 0.01,
+            "y": 0.01,
+            "z": 0.012
+          },
+          "joint_noise_std": [
+            0.006,
+            0.01,
+            0.006,
+            0.012,
+            0.006,
+            0.012,
+            0.006
+          ]
+        },
+        "success_thresholds": {
+          "x": 0.012,
+          "y": 0.01,
+          "z": 0.014
+        },
+        "cage_geometry": {
+          "fore_aft_target_x": 0.026,
+          "fore_aft_tolerance": 0.012,
+          "lateral_margin": 0.004
+        },
+        "table_clearance_threshold": 0.018,
+        "open_width_threshold": 0.03,
+        "b_handoff_stable_steps": 3,
+        "descent_control": {
+          "x_unlock": 0.012,
+          "y_unlock": 0.01,
+          "prealign_downward_limit": 0.002,
+          "forced_descend_action": -0.22
+        },
+        "visual_reference": {
+          "enabled": true,
+          "progress_scale": 1.2,
+          "error_scale": 0.55,
+          "match_bonus": 0.2,
+          "match_threshold": 0.07,
+          "reference_local_target": {
+            "x": 0.026,
+            "y": 0.0,
+            "z": 0.012
+          },
+          "max_contact_retries": 4
+        },
+        "workspace_bounds": {
+          "x": 0.1,
+          "y": 0.06,
+          "z_min": -0.035,
+          "z_max": 0.035
+        }
+      },
+      "stage_b": {
+        "local_target": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "success_thresholds": {
+          "x": 0.018,
+          "y": 0.01,
+          "z": 0.014
+        },
+        "cage_geometry": {
+          "fore_aft_target_x": 0.0,
+          "fore_aft_tolerance": 0.012,
+          "lateral_margin": 0.002
+        },
+        "workspace_bounds": {
+          "x": 0.07,
+          "y": 0.04,
+          "z_min": -0.028,
+          "z_max": 0.028
+        },
+        "reset_alignment_steps": 24,
+        "reset_retry_limit": 4,
+        "grasp_success_steps": 3
+      },
+      "stage_c": {
+        "local_target": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "success_height": 0.02,
+        "post_grasp_xy_action_limit": 0.1,
+        "post_grasp_rot_action_limit": 0.05,
+        "upright_success_cos": 0.96,
+        "severe_tilt_cos": 0.85,
+        "workspace_bounds": {
+          "x": 0.08,
+          "y": 0.05,
+          "z_min": -0.03,
+          "z_max": 0.06
+        },
+        "reset_close_steps": 24,
+        "post_grasp_settle_steps": 4,
+        "reset_retry_limit": 4,
+        "lift_success_steps": 3,
+        "hold_close_action": 1.0,
+        "hold_bonus": 0.45,
+        "lift_amount_scale": 22.0,
+        "lift_progress_scale": 28.0,
+        "upright_bonus_scale": 0.8,
+        "tilt_penalty_scale": 1.4,
+        "prelift_height": 0.01,
+        "no_lift_penalty": 0.35,
+        "downward_after_grasp_penalty": 0.45,
+        "stall_after_grasp_penalty": 0.3
+      }
+    },
+    "supported_object_family": "box_local_grasp_v1",
+    "detection_confidence": 0.98,
+    "source": "realsense_d435i_demo"
+  },
+  "policy_uses_visual": false,
+  "vision_role": "classification_only",
+  "seed": 7,
+  "n_envs": 1,
+  "total_timesteps": 512,
+  "eval_freq": 256,
+  "eval_episodes": 2,
+  "algorithm": "PPO",
+  "controller": "OSC_POSE",
+  "training_stage": "stage_a_cage",
+  "notes": "Stage A assumes teleoperation has already placed the gripper above the object. Vision only selects the object profile / impedance template; PPO learns the top-down descend-to-pregrasp behavior from state.",
+  "ppo_hyperparameters": {
+    "learning_rate": 5e-05,
+    "n_steps": 128,
+    "batch_size": 64,
+    "n_epochs": 10,
+    "gamma": 0.99,
+    "gae_lambda": 0.95,
+    "clip_range": 0.1,
+    "ent_coef": 0.005,
+    "vf_coef": 0.5,
+    "max_grad_norm": 0.3
+  }
+}

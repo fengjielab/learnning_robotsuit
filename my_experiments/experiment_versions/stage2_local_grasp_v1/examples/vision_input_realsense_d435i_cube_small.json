@@ -1,0 +1,8 @@
+{
+  "object_class": "cube",
+  "shape_tag": "box",
+  "size_tag": "small",
+  "object_profile_name": "cube_small",
+  "detection_confidence": 0.98,
+  "source": "realsense_d435i_demo"
+}

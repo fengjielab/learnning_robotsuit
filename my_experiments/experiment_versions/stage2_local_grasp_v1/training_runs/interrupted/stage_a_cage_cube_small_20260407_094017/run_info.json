@@ -1,0 +1,23 @@
+{
+  "run_name": "stage_a_cage_cube_small_20260407_094017",
+  "status": "interrupted",
+  "purpose": "Stage A 笼罩且不碰桌训练",
+  "script_name": "train_stage_a_cage.py",
+  "experiment_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1",
+  "started_at": "2026-04-07 09:40:17",
+  "ended_at": "2026-04-07 09:56:35",
+  "base_checkpoint": null,
+  "final_steps": 4762,
+  "artifacts": {
+    "interrupted_model": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/active/stage_a_cage_cube_small_20260407_094017/interrupted_model_steps_4762.zip",
+    "training_config": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/active/stage_a_cage_cube_small_20260407_094017/training_config.json"
+  },
+  "notes": "用户手动中断，保留用于继续训练。",
+  "error_message": null,
+  "directories": {
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/interrupted/stage_a_cage_cube_small_20260407_094017",
+    "checkpoints": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/interrupted/stage_a_cage_cube_small_20260407_094017/checkpoints",
+    "logs": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/interrupted/stage_a_cage_cube_small_20260407_094017/logs",
+    "tensorboard": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/interrupted/stage_a_cage_cube_small_20260407_094017/tensorboard"
+  }
+}

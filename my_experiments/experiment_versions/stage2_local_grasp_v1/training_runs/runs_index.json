@@ -1,0 +1,512 @@
+{
+  "stage2_local_grasp_cube_small_20260406_115450": {
+    "status": "completed",
+    "purpose": "二阶段局部抓取训练",
+    "script_name": "train_stage2_local_grasp.py",
+    "started_at": "2026-04-06 11:54:50",
+    "ended_at": "2026-04-06 12:51:55",
+    "final_steps": 300032,
+    "base_checkpoint": null,
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage2_local_grasp_cube_small_20260406_115450"
+  },
+  "stage2_local_grasp_cube_small_20260406_152734": {
+    "status": "interrupted",
+    "purpose": "二阶段局部抓取训练",
+    "script_name": "train_stage2_local_grasp.py",
+    "started_at": "2026-04-06 15:27:34",
+    "ended_at": "2026-04-06 15:41:17",
+    "final_steps": 56453,
+    "base_checkpoint": null,
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/interrupted/stage2_local_grasp_cube_small_20260406_152734"
+  },
+  "stage2_local_grasp_cube_small_20260406_155843": {
+    "status": "interrupted",
+    "purpose": "二阶段局部抓取训练",
+    "script_name": "train_stage2_local_grasp.py",
+    "started_at": "2026-04-06 15:58:43",
+    "ended_at": "2026-04-06 16:10:19",
+    "final_steps": 51026,
+    "base_checkpoint": null,
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/interrupted/stage2_local_grasp_cube_small_20260406_155843"
+  },
+  "stage2_local_grasp_cube_small_20260406_161459": {
+    "status": "active",
+    "purpose": "二阶段局部抓取训练",
+    "script_name": "train_stage2_local_grasp.py",
+    "started_at": "2026-04-06 16:14:59",
+    "ended_at": null,
+    "final_steps": null,
+    "base_checkpoint": null,
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/active/stage2_local_grasp_cube_small_20260406_161459"
+  },
+  "stage_a_cage_cube_small_20260406_170127": {
+    "status": "completed",
+    "purpose": "Stage A 笼罩且不碰桌训练",
+    "script_name": "train_stage_a_cage.py",
+    "started_at": "2026-04-06 17:01:27",
+    "ended_at": "2026-04-06 17:49:24",
+    "final_steps": 200704,
+    "base_checkpoint": null,
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_a_cage_cube_small_20260406_170127"
+  },
+  "stage_a_cage_cube_small_20260406_175919": {
+    "status": "completed",
+    "purpose": "Stage A 笼罩且不碰桌训练",
+    "script_name": "train_stage_a_cage.py",
+    "started_at": "2026-04-06 17:59:19",
+    "ended_at": "2026-04-06 19:13:30",
+    "final_steps": 200704,
+    "base_checkpoint": null,
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_a_cage_cube_small_20260406_175919"
+  },
+  "stage_a_cage_cube_small_20260406_192745": {
+    "status": "completed",
+    "purpose": "Stage A 笼罩且不碰桌训练",
+    "script_name": "train_stage_a_cage.py",
+    "started_at": "2026-04-06 19:27:45",
+    "ended_at": "2026-04-06 20:19:50",
+    "final_steps": 100352,
+    "base_checkpoint": null,
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_a_cage_cube_small_20260406_192745"
+  },
+  "stage_a_cage_continue_cube_small_20260406_203025": {
+    "status": "active",
+    "purpose": "Stage A 笼罩且不碰桌继续训练",
+    "script_name": "continue_stage_a_cage.py",
+    "started_at": "2026-04-06 20:30:25",
+    "ended_at": null,
+    "final_steps": null,
+    "base_checkpoint": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_a_cage_cube_small_20260406_175919/final_model_steps_200704.zip",
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/active/stage_a_cage_continue_cube_small_20260406_203025"
+  },
+  "stage_a_cage_continue_cube_small_20260406_203208": {
+    "status": "completed",
+    "purpose": "Stage A 笼罩且不碰桌继续训练",
+    "script_name": "continue_stage_a_cage.py",
+    "started_at": "2026-04-06 20:32:08",
+    "ended_at": "2026-04-06 21:23:35",
+    "final_steps": 200704,
+    "base_checkpoint": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_a_cage_cube_small_20260406_192745/final_model_steps_100352.zip",
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_a_cage_continue_cube_small_20260406_203208"
+  },
+  "stage_b_grasp_cube_small_20260406_214725": {
+    "status": "completed",
+    "purpose": "Stage B 从 A 成功近似姿态出发，学习闭爪并形成 grasp",
+    "script_name": "train_stage_b_grasp.py",
+    "started_at": "2026-04-06 21:47:25",
+    "ended_at": "2026-04-06 22:19:10",
+    "final_steps": 100352,
+    "base_checkpoint": null,
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_b_grasp_cube_small_20260406_214725"
+  },
+  "stage_b_grasp_cube_small_20260407_072022": {
+    "status": "interrupted",
+    "purpose": "Stage B 从 A 成功近似姿态出发，学习闭爪并形成 grasp",
+    "script_name": "train_stage_b_grasp.py",
+    "started_at": "2026-04-07 07:20:22",
+    "ended_at": "2026-04-07 07:49:28",
+    "final_steps": 56592,
+    "base_checkpoint": null,
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/interrupted/stage_b_grasp_cube_small_20260407_072022"
+  },
+  "stage_c_lift_cube_small_20260407_080447": {
+    "status": "interrupted",
+    "purpose": "Stage C 从已抓住状态出发，学习抬起并保持",
+    "script_name": "train_stage_c_lift.py",
+    "started_at": "2026-04-07 08:04:47",
+    "ended_at": "2026-04-07 08:20:06",
+    "final_steps": 80000,
+    "base_checkpoint": null,
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/interrupted/stage_c_lift_cube_small_20260407_080447"
+  },
+  "stage_c_lift_continue_cube_small_20260407_082054": {
+    "status": "interrupted",
+    "purpose": "Stage C 抬起并保持继续训练",
+    "script_name": "continue_stage_c_lift.py",
+    "started_at": "2026-04-07 08:20:54",
+    "ended_at": "2026-04-07 08:27:39",
+    "final_steps": 112908,
+    "base_checkpoint": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/interrupted/stage_c_lift_cube_small_20260407_080447/interrupted_model_steps_80000.zip",
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/interrupted/stage_c_lift_continue_cube_small_20260407_082054"
+  },
+  "stage_c_lift_cube_small_20260407_082921": {
+    "status": "interrupted",
+    "purpose": "Stage C 从已抓住状态出发，学习抬起并保持",
+    "script_name": "train_stage_c_lift.py",
+    "started_at": "2026-04-07 08:29:21",
+    "ended_at": "2026-04-07 08:49:42",
+    "final_steps": 49204,
+    "base_checkpoint": null,
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/interrupted/stage_c_lift_cube_small_20260407_082921"
+  },
+  "stage_c_lift_continue_cube_small_20260407_085623": {
+    "status": "completed",
+    "purpose": "Stage C 抬起并保持继续训练",
+    "script_name": "continue_stage_c_lift.py",
+    "started_at": "2026-04-07 08:56:23",
+    "ended_at": "2026-04-07 09:02:32",
+    "final_steps": 79924,
+    "base_checkpoint": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/interrupted/stage_c_lift_cube_small_20260407_082921/interrupted_model_steps_49204.zip",
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_c_lift_continue_cube_small_20260407_085623"
+  },
+  "stage_c_lift_continue_cube_small_20260407_091334": {
+    "status": "completed",
+    "purpose": "Stage C 抬起并保持继续训练",
+    "script_name": "continue_stage_c_lift.py",
+    "started_at": "2026-04-07 09:13:34",
+    "ended_at": "2026-04-07 09:25:53",
+    "final_steps": 110644,
+    "base_checkpoint": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_c_lift_continue_cube_small_20260407_085623/final_model_steps_79924.zip",
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_c_lift_continue_cube_small_20260407_091334"
+  },
+  "stage_a_cage_cube_small_20260407_094017": {
+    "status": "interrupted",
+    "purpose": "Stage A 笼罩且不碰桌训练",
+    "script_name": "train_stage_a_cage.py",
+    "started_at": "2026-04-07 09:40:17",
+    "ended_at": "2026-04-07 09:56:35",
+    "final_steps": 4762,
+    "base_checkpoint": null,
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/interrupted/stage_a_cage_cube_small_20260407_094017"
+  },
+  "stage_a_cage_continue_cube_small_20260407_095645": {
+    "status": "failed",
+    "purpose": "Stage A 笼罩且不碰桌继续训练",
+    "script_name": "continue_stage_a_cage.py",
+    "started_at": "2026-04-07 09:56:45",
+    "ended_at": "2026-04-07 10:26:12",
+    "final_steps": 209332,
+    "base_checkpoint": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_a_cage_continue_cube_small_20260406_203208/final_model_steps_200704.zip",
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/failed/stage_a_cage_continue_cube_small_20260407_095645"
+  },
+  "stage_a_cage_cube_small_20260407_102353": {
+    "status": "completed",
+    "purpose": "Stage A 笼罩且不碰桌训练",
+    "script_name": "train_stage_a_cage.py",
+    "started_at": "2026-04-07 10:23:53",
+    "ended_at": "2026-04-07 10:24:02",
+    "final_steps": 32,
+    "base_checkpoint": null,
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_a_cage_cube_small_20260407_102353"
+  },
+  "stage_a_cage_continue_cube_small_20260407_102622": {
+    "status": "active",
+    "purpose": "Stage A 笼罩且不碰桌继续训练",
+    "script_name": "continue_stage_a_cage.py",
+    "started_at": "2026-04-07 10:26:22",
+    "ended_at": null,
+    "final_steps": null,
+    "base_checkpoint": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_a_cage_continue_cube_small_20260406_203208/final_model_steps_200704.zip",
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/active/stage_a_cage_continue_cube_small_20260407_102622"
+  },
+  "stage_a_cage_continue_cube_small_20260407_102730": {
+    "status": "failed",
+    "purpose": "Stage A 笼罩且不碰桌继续训练",
+    "script_name": "continue_stage_a_cage.py",
+    "started_at": "2026-04-07 10:27:30",
+    "ended_at": "2026-04-07 10:28:31",
+    "final_steps": 200960,
+    "base_checkpoint": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_a_cage_continue_cube_small_20260406_203208/final_model_steps_200704.zip",
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/failed/stage_a_cage_continue_cube_small_20260407_102730"
+  },
+  "stage_a_cage_continue_cube_small_20260407_102809": {
+    "status": "failed",
+    "purpose": "Stage A 笼罩且不碰桌继续训练",
+    "script_name": "continue_stage_a_cage.py",
+    "started_at": "2026-04-07 10:28:09",
+    "ended_at": "2026-04-07 10:29:15",
+    "final_steps": 201728,
+    "base_checkpoint": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_a_cage_continue_cube_small_20260406_203208/final_model_steps_200704.zip",
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/failed/stage_a_cage_continue_cube_small_20260407_102809"
+  },
+  "stage_a_cage_continue_cube_small_20260407_102944": {
+    "status": "failed",
+    "purpose": "Stage A 笼罩且不碰桌继续训练",
+    "script_name": "continue_stage_a_cage.py",
+    "started_at": "2026-04-07 10:29:44",
+    "ended_at": "2026-04-07 10:30:53",
+    "final_steps": 201728,
+    "base_checkpoint": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_a_cage_continue_cube_small_20260406_203208/final_model_steps_200704.zip",
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/failed/stage_a_cage_continue_cube_small_20260407_102944"
+  },
+  "stage_a_cage_continue_cube_small_20260407_103143": {
+    "status": "failed",
+    "purpose": "Stage A 笼罩且不碰桌继续训练",
+    "script_name": "continue_stage_a_cage.py",
+    "started_at": "2026-04-07 10:31:43",
+    "ended_at": "2026-04-07 10:32:52",
+    "final_steps": 201728,
+    "base_checkpoint": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_a_cage_continue_cube_small_20260406_203208/final_model_steps_200704.zip",
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/failed/stage_a_cage_continue_cube_small_20260407_103143"
+  },
+  "stage_a_cage_continue_cube_small_20260407_103323": {
+    "status": "completed",
+    "purpose": "Stage A 笼罩且不碰桌继续训练",
+    "script_name": "continue_stage_a_cage.py",
+    "started_at": "2026-04-07 10:33:23",
+    "ended_at": "2026-04-07 10:35:45",
+    "final_steps": 202752,
+    "base_checkpoint": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_a_cage_continue_cube_small_20260406_203208/final_model_steps_200704.zip",
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_a_cage_continue_cube_small_20260407_103323"
+  },
+  "stage_a_cage_continue_cube_small_20260407_103907": {
+    "status": "interrupted",
+    "purpose": "Stage A 笼罩且不碰桌继续训练",
+    "script_name": "continue_stage_a_cage.py",
+    "started_at": "2026-04-07 10:39:07",
+    "ended_at": "2026-04-07 11:44:26",
+    "final_steps": 266056,
+    "base_checkpoint": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_a_cage_continue_cube_small_20260406_203208/final_model_steps_200704.zip",
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/interrupted/stage_a_cage_continue_cube_small_20260407_103907"
+  },
+  "stage_a_cage_cube_small_20260407_115303": {
+    "status": "interrupted",
+    "purpose": "Stage A 笼罩且不碰桌训练",
+    "script_name": "train_stage_a_cage.py",
+    "started_at": "2026-04-07 11:53:03",
+    "ended_at": "2026-04-07 12:56:45",
+    "final_steps": 63856,
+    "base_checkpoint": null,
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/interrupted/stage_a_cage_cube_small_20260407_115303"
+  },
+  "stage_a_cage_cube_small_20260408_155834": {
+    "status": "failed",
+    "purpose": "Stage A 笼罩且不碰桌训练",
+    "script_name": "train_stage_a_cage.py",
+    "started_at": "2026-04-08 15:58:34",
+    "ended_at": "2026-04-08 15:58:37",
+    "final_steps": 0,
+    "base_checkpoint": null,
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/failed/stage_a_cage_cube_small_20260408_155834"
+  },
+  "stage_a_cage_cube_small_20260408_155904": {
+    "status": "completed",
+    "purpose": "Stage A 笼罩且不碰桌训练",
+    "script_name": "train_stage_a_cage.py",
+    "started_at": "2026-04-08 15:59:04",
+    "ended_at": "2026-04-08 18:06:10",
+    "final_steps": 5120,
+    "base_checkpoint": null,
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_a_cage_cube_small_20260408_155904"
+  },
+  "stage_a_cage_cube_small_20260408_155940": {
+    "status": "failed",
+    "purpose": "Stage A 笼罩且不碰桌训练",
+    "script_name": "train_stage_a_cage.py",
+    "started_at": "2026-04-08 15:59:40",
+    "ended_at": "2026-04-08 15:59:44",
+    "final_steps": 0,
+    "base_checkpoint": null,
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/failed/stage_a_cage_cube_small_20260408_155940"
+  },
+  "stage_a_cage_cube_small_20260408_160104": {
+    "status": "completed",
+    "purpose": "Stage A 笼罩且不碰桌训练",
+    "script_name": "train_stage_a_cage.py",
+    "started_at": "2026-04-08 16:01:04",
+    "ended_at": "2026-04-08 16:47:48",
+    "final_steps": 5120,
+    "base_checkpoint": null,
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_a_cage_cube_small_20260408_160104"
+  },
+  "stage_a_cage_cube_small_20260408_213901": {
+    "status": "completed",
+    "purpose": "Stage A 笼罩且不碰桌训练",
+    "script_name": "train_stage_a_cage.py",
+    "started_at": "2026-04-08 21:39:01",
+    "ended_at": "2026-04-08 21:39:47",
+    "final_steps": 256,
+    "base_checkpoint": null,
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_a_cage_cube_small_20260408_213901"
+  },
+  "stage_a_cage_cube_small_20260408_220537": {
+    "status": "completed",
+    "purpose": "Stage A 笼罩且不碰桌训练",
+    "script_name": "train_stage_a_cage.py",
+    "started_at": "2026-04-08 22:05:37",
+    "ended_at": "2026-04-08 22:06:18",
+    "final_steps": 128,
+    "base_checkpoint": null,
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_a_cage_cube_small_20260408_220537"
+  },
+  "stage_a_cage_cube_small_20260408_220858": {
+    "status": "completed",
+    "purpose": "Stage A 笼罩且不碰桌训练",
+    "script_name": "train_stage_a_cage.py",
+    "started_at": "2026-04-08 22:08:58",
+    "ended_at": "2026-04-08 22:16:16",
+    "final_steps": 5120,
+    "base_checkpoint": null,
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_a_cage_cube_small_20260408_220858"
+  },
+  "stage_a_cage_cube_small_20260409_065334": {
+    "status": "completed",
+    "purpose": "Stage A 笼罩且不碰桌训练",
+    "script_name": "train_stage_a_cage.py",
+    "started_at": "2026-04-09 06:53:34",
+    "ended_at": "2026-04-09 06:57:33",
+    "final_steps": 5120,
+    "base_checkpoint": null,
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_a_cage_cube_small_20260409_065334"
+  },
+  "stage_a_cage_cube_small_20260409_081451": {
+    "status": "completed",
+    "purpose": "Stage A 笼罩且不碰桌训练",
+    "script_name": "train_stage_a_cage.py",
+    "started_at": "2026-04-09 08:14:51",
+    "ended_at": "2026-04-09 08:43:24",
+    "final_steps": 50176,
+    "base_checkpoint": null,
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_a_cage_cube_small_20260409_081451"
+  },
+  "stage_a_cage_cube_small_20260409_085711": {
+    "status": "completed",
+    "purpose": "Stage A 笼罩且不碰桌训练",
+    "script_name": "train_stage_a_cage.py",
+    "started_at": "2026-04-09 08:57:11",
+    "ended_at": "2026-04-09 09:24:01",
+    "final_steps": 50176,
+    "base_checkpoint": null,
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_a_cage_cube_small_20260409_085711"
+  },
+  "stage_a_cage_cube_small_20260409_171503": {
+    "status": "completed",
+    "purpose": "Stage A 笼罩且不碰桌训练",
+    "script_name": "train_stage_a_cage.py",
+    "started_at": "2026-04-09 17:15:03",
+    "ended_at": "2026-04-09 17:44:48",
+    "final_steps": 50176,
+    "base_checkpoint": null,
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_a_cage_cube_small_20260409_171503"
+  },
+  "stage_a_cage_cube_small_20260409_185840": {
+    "status": "completed",
+    "purpose": "Stage A 笼罩且不碰桌训练",
+    "script_name": "train_stage_a_cage.py",
+    "started_at": "2026-04-09 18:58:40",
+    "ended_at": "2026-04-09 19:26:29",
+    "final_steps": 50176,
+    "base_checkpoint": null,
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_a_cage_cube_small_20260409_185840"
+  },
+  "stage_a_cage_cube_small_20260409_203623": {
+    "status": "completed",
+    "purpose": "Stage A 笼罩且不碰桌训练",
+    "script_name": "train_stage_a_cage.py",
+    "started_at": "2026-04-09 20:36:23",
+    "ended_at": "2026-04-09 21:02:29",
+    "final_steps": 50176,
+    "base_checkpoint": null,
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_a_cage_cube_small_20260409_203623"
+  },
+  "stage_a_cage_cube_small_20260409_212343": {
+    "status": "interrupted",
+    "purpose": "Stage A 笼罩且不碰桌训练",
+    "script_name": "train_stage_a_cage.py",
+    "started_at": "2026-04-09 21:23:43",
+    "ended_at": "2026-04-09 21:48:10",
+    "final_steps": 43876,
+    "base_checkpoint": null,
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/interrupted/stage_a_cage_cube_small_20260409_212343"
+  },
+  "stage_a_cage_cube_small_20260409_215055": {
+    "status": "interrupted",
+    "purpose": "Stage A 笼罩且不碰桌训练",
+    "script_name": "train_stage_a_cage.py",
+    "started_at": "2026-04-09 21:50:55",
+    "ended_at": "2026-04-09 22:06:01",
+    "final_steps": 26805,
+    "base_checkpoint": null,
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/interrupted/stage_a_cage_cube_small_20260409_215055"
+  },
+  "stage_a_cage_cube_small_20260409_221412": {
+    "status": "completed",
+    "purpose": "Stage A 笼罩且不碰桌训练",
+    "script_name": "train_stage_a_cage.py",
+    "started_at": "2026-04-09 22:14:12",
+    "ended_at": "2026-04-09 22:38:21",
+    "final_steps": 50176,
+    "base_checkpoint": null,
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_a_cage_cube_small_20260409_221412"
+  },
+  "stage_a_cage_cube_small_20260410_071948": {
+    "status": "completed",
+    "purpose": "Stage A 笼罩且不碰桌训练",
+    "script_name": "train_stage_a_cage.py",
+    "started_at": "2026-04-10 07:19:48",
+    "ended_at": "2026-04-10 07:51:07",
+    "final_steps": 50176,
+    "base_checkpoint": null,
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_a_cage_cube_small_20260410_071948"
+  },
+  "stage_a_cage_cube_small_loose_20260410_202750": {
+    "status": "completed",
+    "purpose": "Stage A 笼罩且不碰桌训练",
+    "script_name": "train_stage_a_cage.py",
+    "started_at": "2026-04-10 20:27:50",
+    "ended_at": "2026-04-10 20:38:00",
+    "final_steps": 50176,
+    "base_checkpoint": null,
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_a_cage_cube_small_loose_20260410_202750"
+  },
+  "stage_a_cage_cube_small_loose_20260410_211303": {
+    "status": "completed",
+    "purpose": "Stage A 正上方下降到可抓起点训练",
+    "script_name": "train_stage_a_cage.py",
+    "started_at": "2026-04-10 21:13:03",
+    "ended_at": "2026-04-10 21:13:18",
+    "final_steps": 512,
+    "base_checkpoint": null,
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_a_cage_cube_small_loose_20260410_211303"
+  },
+  "stage_a_cage_cube_small_loose_20260411_071404": {
+    "status": "completed",
+    "purpose": "Stage A 正上方下降到可抓起点训练",
+    "script_name": "train_stage_a_cage.py",
+    "started_at": "2026-04-11 07:14:04",
+    "ended_at": "2026-04-11 07:25:11",
+    "final_steps": 50176,
+    "base_checkpoint": null,
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_a_cage_cube_small_loose_20260411_071404"
+  },
+  "stage_b_grasp_cube_small_20260411_090625": {
+    "status": "interrupted",
+    "purpose": "Stage B 从 A 成功近似姿态出发，学习闭爪并形成 grasp",
+    "script_name": "train_stage_b_grasp.py",
+    "started_at": "2026-04-11 09:06:25",
+    "ended_at": "2026-04-11 09:32:55",
+    "final_steps": 76800,
+    "base_checkpoint": null,
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/interrupted/stage_b_grasp_cube_small_20260411_090625"
+  },
+  "stage_b_grasp_cube_small_20260411_112136": {
+    "status": "completed",
+    "purpose": "Stage B 从 A 成功近似姿态出发，学习闭爪并形成 grasp",
+    "script_name": "train_stage_b_grasp.py",
+    "started_at": "2026-04-11 11:21:36",
+    "ended_at": "2026-04-11 11:44:06",
+    "final_steps": 70656,
+    "base_checkpoint": null,
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_b_grasp_cube_small_20260411_112136"
+  },
+  "stage_b_grasp_cube_small_20260411_120759": {
+    "status": "completed",
+    "purpose": "Stage B 从 A 成功近似姿态出发，学习闭爪并形成 grasp",
+    "script_name": "train_stage_b_grasp.py",
+    "started_at": "2026-04-11 12:07:59",
+    "ended_at": "2026-04-11 12:29:21",
+    "final_steps": 70656,
+    "base_checkpoint": null,
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_b_grasp_cube_small_20260411_120759"
+  },
+  "stage_b_grasp_continue_cube_small_20260411_211609": {
+    "status": "completed",
+    "purpose": "Stage B 闭爪抓住继续训练",
+    "script_name": "continue_stage_b_grasp.py",
+    "started_at": "2026-04-11 21:16:09",
+    "ended_at": "2026-04-11 21:22:35",
+    "final_steps": 40480,
+    "base_checkpoint": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_b_grasp_cube_small_20260411_120759/checkpoints/stage_b_grasp_20000_steps.zip",
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_b_grasp_continue_cube_small_20260411_211609"
+  }
+}

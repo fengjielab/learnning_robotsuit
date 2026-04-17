@@ -1,0 +1,20 @@
+{
+  "run_name": "stage_a_cage_continue_cube_small_20260407_102622",
+  "status": "active",
+  "purpose": "Stage A 笼罩且不碰桌继续训练",
+  "script_name": "continue_stage_a_cage.py",
+  "experiment_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1",
+  "started_at": "2026-04-07 10:26:22",
+  "ended_at": null,
+  "base_checkpoint": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_a_cage_continue_cube_small_20260406_203208/final_model_steps_200704.zip",
+  "final_steps": null,
+  "artifacts": {},
+  "notes": null,
+  "error_message": null,
+  "directories": {
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/active/stage_a_cage_continue_cube_small_20260407_102622",
+    "checkpoints": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/active/stage_a_cage_continue_cube_small_20260407_102622/checkpoints",
+    "logs": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/active/stage_a_cage_continue_cube_small_20260407_102622/logs",
+    "tensorboard": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/active/stage_a_cage_continue_cube_small_20260407_102622/tensorboard"
+  }
+}

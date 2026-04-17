@@ -1,0 +1,20 @@
+{
+  "run_name": "stage2_local_grasp_cube_small_20260406_161459",
+  "status": "active",
+  "purpose": "二阶段局部抓取训练",
+  "script_name": "train_stage2_local_grasp.py",
+  "experiment_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1",
+  "started_at": "2026-04-06 16:14:59",
+  "ended_at": null,
+  "base_checkpoint": null,
+  "final_steps": null,
+  "artifacts": {},
+  "notes": null,
+  "error_message": null,
+  "directories": {
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/active/stage2_local_grasp_cube_small_20260406_161459",
+    "checkpoints": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/active/stage2_local_grasp_cube_small_20260406_161459/checkpoints",
+    "logs": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/active/stage2_local_grasp_cube_small_20260406_161459/logs",
+    "tensorboard": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/active/stage2_local_grasp_cube_small_20260406_161459/tensorboard"
+  }
+}

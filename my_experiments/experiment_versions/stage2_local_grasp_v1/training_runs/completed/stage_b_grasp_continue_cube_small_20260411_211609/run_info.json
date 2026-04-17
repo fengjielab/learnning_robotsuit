@@ -1,0 +1,23 @@
+{
+  "run_name": "stage_b_grasp_continue_cube_small_20260411_211609",
+  "status": "completed",
+  "purpose": "Stage B 闭爪抓住继续训练",
+  "script_name": "continue_stage_b_grasp.py",
+  "experiment_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1",
+  "started_at": "2026-04-11 21:16:09",
+  "ended_at": "2026-04-11 21:22:35",
+  "base_checkpoint": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_b_grasp_cube_small_20260411_120759/checkpoints/stage_b_grasp_20000_steps.zip",
+  "final_steps": 40480,
+  "artifacts": {
+    "final_model": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/active/stage_b_grasp_continue_cube_small_20260411_211609/final_model_steps_40480.zip",
+    "training_config": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/active/stage_b_grasp_continue_cube_small_20260411_211609/training_config.json"
+  },
+  "notes": "Stage B 继续训练完成，耗时 382.3 秒。",
+  "error_message": null,
+  "directories": {
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_b_grasp_continue_cube_small_20260411_211609",
+    "checkpoints": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_b_grasp_continue_cube_small_20260411_211609/checkpoints",
+    "logs": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_b_grasp_continue_cube_small_20260411_211609/logs",
+    "tensorboard": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/completed/stage_b_grasp_continue_cube_small_20260411_211609/tensorboard"
+  }
+}

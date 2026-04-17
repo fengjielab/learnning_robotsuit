@@ -1,0 +1,290 @@
+"""Continue training Stage C lift PPO."""
+
+from __future__ import annotations
+
+import argparse
+import glob
+import json
+import os
+import re
+import sys
+import time
+
+from stable_baselines3 import PPO
+from stable_baselines3.common.callbacks import CallbackList, CheckpointCallback
+from stable_baselines3.common.monitor import Monitor
+from stable_baselines3.common.vec_env import DummyVecEnv, SubprocVecEnv
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_DIR = os.path.dirname(SCRIPT_DIR)
+EXPERIMENTS_DIR = os.path.dirname(PROJECT_DIR)
+for path in (PROJECT_DIR, EXPERIMENTS_DIR):
+    if path not in sys.path:
+        sys.path.append(path)
+
+from run_tracking import RunTracker
+from callbacks.stage_c_evaluation_callback import StageCEvaluationCallback
+from core.stage_c_lift_env import StageCLiftEnv
+from core.vision_interface import resolve_stage2_context
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Continue Stage C lift PPO.")
+    parser.add_argument("--checkpoint", type=str, default=None)
+    parser.add_argument("--additional-timesteps", type=int, default=100000)
+    parser.add_argument("--n-envs", type=int, default=None)
+    parser.add_argument("--object-profile", type=str, default=None)
+    parser.add_argument("--object-policy", type=str, default=None, choices=["fixed", "small_random"])
+    parser.add_argument("--camera-profile", type=str, default=None)
+    parser.add_argument("--vision-input", type=str, default=None)
+    parser.add_argument("--seed", type=int, default=None)
+    parser.add_argument("--learning-rate", type=float, default=None)
+    parser.add_argument("--n-steps", type=int, default=None)
+    parser.add_argument("--batch-size", type=int, default=None)
+    parser.add_argument("--n-epochs", type=int, default=None)
+    parser.add_argument("--eval-freq", type=int, default=10000)
+    parser.add_argument("--eval-episodes", type=int, default=10)
+    return parser.parse_args()
+
+
+def build_vec_env(n_envs, tracker, resolved_profile, object_policy, vision_context, seed):
+    def make_env(rank):
+        def _init():
+            env = StageCLiftEnv(
+                object_profile_name=resolved_profile,
+                object_policy=object_policy,
+                vision_context=vision_context,
+                has_renderer=False,
+                seed=seed + rank,
+            )
+            log_dir = os.path.join(tracker.log_dir, f"env_{rank}")
+            os.makedirs(log_dir, exist_ok=True)
+            return Monitor(env, log_dir)
+
+        return _init
+
+    env_fns = [make_env(rank) for rank in range(n_envs)]
+    if n_envs == 1:
+        return DummyVecEnv(env_fns)
+    return SubprocVecEnv(env_fns, start_method="fork")
+
+
+def extract_steps(path: str):
+    matches = re.findall(r"(\d+)", os.path.basename(path))
+    return int(matches[-1]) if matches else 0
+
+
+def checkpoint_priority(path: str):
+    basename = os.path.basename(path)
+    if basename.startswith("interrupted_model_steps_"):
+        return 3
+    if basename.startswith("final_model_steps_"):
+        return 2
+    return 1
+
+
+def find_latest_checkpoint():
+    patterns = [
+        os.path.join(PROJECT_DIR, "training_runs", "completed", "stage_c_lift_*", "final_model_steps_*.zip"),
+        os.path.join(PROJECT_DIR, "training_runs", "interrupted", "stage_c_lift_*", "interrupted_model_steps_*.zip"),
+        os.path.join(PROJECT_DIR, "training_runs", "*", "stage_c_lift_*", "checkpoints", "*.zip"),
+    ]
+    candidates = []
+    for pattern in patterns:
+        candidates.extend(glob.glob(pattern))
+    if not candidates:
+        raise FileNotFoundError("没有找到可继续训练的 Stage C 模型或检查点。")
+    candidates.sort(key=lambda path: (os.path.getmtime(path), checkpoint_priority(path), extract_steps(path)))
+    return candidates[-1]
+
+
+def resolve_training_config_path(checkpoint_path: str):
+    checkpoint_dir = os.path.dirname(checkpoint_path)
+    if os.path.basename(checkpoint_dir) == "checkpoints":
+        candidate = os.path.join(os.path.dirname(checkpoint_dir), "training_config.json")
+    else:
+        candidate = os.path.join(checkpoint_dir, "training_config.json")
+    return candidate if os.path.exists(candidate) else None
+
+
+def load_base_config(checkpoint_path: str):
+    config_path = resolve_training_config_path(checkpoint_path)
+    if not config_path:
+        return {}, None
+    with open(config_path, "r", encoding="utf-8") as handle:
+        return json.load(handle), config_path
+
+
+def main():
+    args = parse_args()
+    checkpoint_path = os.path.abspath(args.checkpoint) if args.checkpoint else find_latest_checkpoint()
+    base_config, base_config_path = load_base_config(checkpoint_path)
+
+    object_profile = args.object_profile or base_config.get("object_profile") or "cube_small"
+    object_policy = args.object_policy or base_config.get("object_policy") or "fixed"
+    camera_profile = args.camera_profile or base_config.get("camera_profile") or "realsense_d435i"
+    seed = args.seed if args.seed is not None else base_config.get("seed", 7)
+    n_envs = args.n_envs or base_config.get("n_envs", 1)
+
+    vision_context = resolve_stage2_context(
+        camera_profile_name=camera_profile,
+        vision_input_path=args.vision_input or base_config.get("vision_input"),
+        fallback_object_profile=object_profile,
+    )
+    resolved_profile = vision_context["object_profile_name"]
+
+    run_timestamp = time.strftime("%Y%m%d_%H%M%S")
+    run_name = f"stage_c_lift_continue_{resolved_profile}_{run_timestamp}"
+
+    tracker = RunTracker(
+        experiment_dir=PROJECT_DIR,
+        run_name=run_name,
+        script_name=os.path.basename(__file__),
+        purpose="Stage C 抬起并保持继续训练",
+    )
+    tracker.record_base_checkpoint(checkpoint_path)
+
+    print("=" * 72)
+    print("Stage C: 抬起并保持继续训练")
+    print("=" * 72)
+    print(f"基础模型：{checkpoint_path}")
+    print(f"本次训练目录：{tracker.run_dir}")
+    print(f"TensorBoard 日志目录：{tracker.tensorboard_dir}")
+    print(f"并行环境数：{n_envs}")
+
+    env = build_vec_env(
+        n_envs=n_envs,
+        tracker=tracker,
+        resolved_profile=resolved_profile,
+        object_policy=object_policy,
+        vision_context=vision_context,
+        seed=seed,
+    )
+    model = PPO.load(checkpoint_path)
+    model.set_env(env)
+    model.tensorboard_log = tracker.tensorboard_dir
+
+    env_obs_shape = tuple(env.observation_space.shape)
+    model_obs_shape = tuple(model.observation_space.shape)
+    if env_obs_shape != model_obs_shape:
+        raise RuntimeError(
+            "所选 Stage C 模型与当前环境定义不兼容。"
+            f" 模型 observation shape={model_obs_shape}, 当前环境 shape={env_obs_shape}。"
+            " 请改用最新一次 Stage C 训练得到的模型继续训练，或重新训练 Stage C。"
+        )
+
+    learning_rate = args.learning_rate or base_config.get("ppo_hyperparameters", {}).get("learning_rate", 4e-5)
+    n_steps = args.n_steps or base_config.get("ppo_hyperparameters", {}).get("n_steps", 1024)
+    batch_size = args.batch_size or base_config.get("ppo_hyperparameters", {}).get("batch_size", 128)
+    n_epochs = args.n_epochs or base_config.get("ppo_hyperparameters", {}).get("n_epochs", 10)
+
+    model.learning_rate = learning_rate
+    model.n_steps = n_steps
+    model.batch_size = batch_size
+    model.n_epochs = n_epochs
+
+    config = {
+        "run_name": run_name,
+        "resume_from": checkpoint_path,
+        "resume_from_config": base_config_path,
+        "object_profile": resolved_profile,
+        "object_policy": object_policy,
+        "camera_profile": camera_profile,
+        "vision_input": vision_context["vision_input_path"],
+        "vision_labels": vision_context["vision_labels"],
+        "policy_uses_visual": vision_context.get("policy_uses_visual", False),
+        "vision_role": vision_context.get("vision_role", "classification_only"),
+        "seed": seed,
+        "n_envs": n_envs,
+        "additional_timesteps": args.additional_timesteps,
+        "eval_freq": args.eval_freq,
+        "eval_episodes": args.eval_episodes,
+        "algorithm": "PPO",
+        "controller": "OSC_POSE",
+        "training_stage": "stage_c_lift_continue",
+        "ppo_hyperparameters": {
+            "learning_rate": learning_rate,
+            "n_steps": n_steps,
+            "batch_size": batch_size,
+            "n_epochs": n_epochs,
+        },
+    }
+
+    config_path = tracker.path_for("training_config.json")
+    with open(config_path, "w", encoding="utf-8") as handle:
+        json.dump(config, handle, indent=2, ensure_ascii=False)
+
+    checkpoint_callback = CheckpointCallback(
+        save_freq=max(1, 50000 // n_envs),
+        save_path=tracker.checkpoint_dir,
+        name_prefix="stage_c_lift",
+    )
+    evaluation_callback = StageCEvaluationCallback(
+        eval_env_kwargs={
+            "object_profile_name": resolved_profile,
+            "object_policy": object_policy,
+            "vision_context": vision_context,
+            "has_renderer": False,
+            "seed": seed,
+        },
+        eval_freq=args.eval_freq,
+        n_eval_episodes=args.eval_episodes,
+        metrics_path=tracker.path_for("evaluation_history.jsonl"),
+        verbose=1,
+    )
+    callback = CallbackList([checkpoint_callback, evaluation_callback])
+
+    start_time = time.time()
+    final_steps = None
+
+    try:
+        model.learn(
+            total_timesteps=args.additional_timesteps,
+            callback=callback,
+            tb_log_name=run_name,
+            reset_num_timesteps=False,
+        )
+        final_steps = model.num_timesteps
+        model_path = tracker.path_for(f"final_model_steps_{final_steps}.zip")
+        model.save(model_path)
+        final_dir = tracker.finalize(
+            status="completed",
+            final_steps=final_steps,
+            artifacts={
+                "final_model": model_path,
+                "training_config": config_path,
+            },
+            notes=f"Stage C 继续训练完成，耗时 {time.time() - start_time:.1f} 秒。",
+        )
+        print(f"\nStage C 继续训练完成，最终目录：{final_dir}")
+    except KeyboardInterrupt:
+        final_steps = model.num_timesteps
+        interrupted_model = tracker.path_for(f"interrupted_model_steps_{final_steps}.zip")
+        model.save(interrupted_model)
+        final_dir = tracker.finalize(
+            status="interrupted",
+            final_steps=final_steps,
+            artifacts={
+                "interrupted_model": interrupted_model,
+                "training_config": config_path,
+            },
+            notes="用户手动中断，保留用于继续训练。",
+        )
+        print(f"\nStage C 继续训练被中断，结果已归档到：{final_dir}")
+    except Exception as exc:
+        final_steps = model.num_timesteps
+        final_dir = tracker.finalize(
+            status="failed",
+            final_steps=final_steps,
+            artifacts={"training_config": config_path},
+            error_message=str(exc),
+            notes="Stage C 继续训练异常退出，请查看 run_info.json。",
+        )
+        print(f"\nStage C 继续训练失败，结果已归档到：{final_dir}")
+        raise
+    finally:
+        env.close()
+
+
+if __name__ == "__main__":
+    main()

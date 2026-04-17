@@ -1,0 +1,23 @@
+{
+  "run_name": "stage_c_lift_cube_small_20260407_082921",
+  "status": "interrupted",
+  "purpose": "Stage C 从已抓住状态出发，学习抬起并保持",
+  "script_name": "train_stage_c_lift.py",
+  "experiment_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1",
+  "started_at": "2026-04-07 08:29:21",
+  "ended_at": "2026-04-07 08:49:42",
+  "base_checkpoint": null,
+  "final_steps": 49204,
+  "artifacts": {
+    "interrupted_model": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/active/stage_c_lift_cube_small_20260407_082921/interrupted_model_steps_49204.zip",
+    "training_config": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/active/stage_c_lift_cube_small_20260407_082921/training_config.json"
+  },
+  "notes": "用户手动中断，保留用于继续训练。",
+  "error_message": null,
+  "directories": {
+    "run_dir": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/interrupted/stage_c_lift_cube_small_20260407_082921",
+    "checkpoints": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/interrupted/stage_c_lift_cube_small_20260407_082921/checkpoints",
+    "logs": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/interrupted/stage_c_lift_cube_small_20260407_082921/logs",
+    "tensorboard": "/home/mfj/robosuite/my_experiments/experiment_versions/stage2_local_grasp_v1/training_runs/interrupted/stage_c_lift_cube_small_20260407_082921/tensorboard"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "run_name": "stage_a_cage_cube_small_20260409_081451",
+  "object_profile": "cube_small",
+  "object_policy": "fixed",
+  "camera_profile": "realsense_d435i",
+  "reset_strategy": "teleop_like",
+  "vision_input": null,
+  "vision_labels": {
+    "object_class": "cube",
+    "shape_tag": "box",
+    "size_tag": "small",
+    "object_profile_name": "cube_small",
+    "detection_confidence": 1.0,
+    "source": "manual_default"
+  },
+  "seed": 7,
+  "n_envs": 1,
+  "total_timesteps": 50000,
+  "eval_freq": 5000,
+  "eval_episodes": 5,
+  "algorithm": "PPO",
+  "controller": "OSC_POSE",
+  "training_stage": "stage_a_cage",
+  "notes": "Stage A only learns local cage alignment while keeping the gripper open and avoiding table contact.",
+  "ppo_hyperparameters": {
+    "learning_rate": 5e-05,
+    "n_steps": 256,
+    "batch_size": 64,
+    "n_epochs": 10,
+    "gamma": 0.99,
+    "gae_lambda": 0.95,
+    "clip_range": 0.1,
+    "ent_coef": 0.005,
+    "vf_coef": 0.5,
+    "max_grad_norm": 0.3
+  }
+}
